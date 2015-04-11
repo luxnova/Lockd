@@ -46,6 +46,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
         viewHolder.txtViewTitle.setOnItemClickListener(this);
         viewHolder.imgViewIcon.setOnItemClickListener(this);
 
+        if(position == positionOfPartition)
+        {
+            viewHolder.imgViewIcon..setVisibility(View.GONE);
+            
+            //Now just set the font size and look via viewHolder.txtViewTitle....
+        }
         this.position = position;
 
     }
