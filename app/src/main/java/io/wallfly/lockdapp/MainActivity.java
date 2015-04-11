@@ -5,16 +5,17 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.MotionEvent;
-import android.widget.Toolbar;
+import android.support.v7.widget.Toolbar;
+import android.support.v7.app.ActionBarActivity;
 
 import com.hmkcode.android.recyclerview.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
 
+    private Toolbar toolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +46,12 @@ public class MainActivity extends Activity {
         MyAdapter mAdapter = new MyAdapter(itemsData);
         recyclerView.setAdapter(mAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
+
+
 
 }

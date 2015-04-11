@@ -58,9 +58,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>  {
             //But this does NOT work because the activity has no context
             //Need to find a way to use context to use getResources()
             viewHolder.txtViewTitle.setHeight(150);
-
-            viewHolder.txtViewTitle.setTextSize(28);
-
         }
 
         // Conditional used to set checkbox ONLY visible on first row of recyclerview
