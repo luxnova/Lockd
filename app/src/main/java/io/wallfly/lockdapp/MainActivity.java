@@ -48,7 +48,9 @@ public class MainActivity extends ActionBarActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.bringToFront();
         setSupportActionBar(toolbar);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
