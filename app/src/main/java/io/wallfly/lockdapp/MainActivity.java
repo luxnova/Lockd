@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.MotionEvent;
+import android.widget.Toolbar;
 
 import com.hmkcode.android.recyclerview.R;
 
@@ -24,15 +25,18 @@ public class MainActivity extends Activity {
 
         List<ItemData> itemsData = new ArrayList<>();
 
-
-        itemsData.add(new ItemData("Create Lock", R.drawable.ic_launcher));
-
-        itemsData.add(new ItemData("Set Lock", R.drawable.ic_launcher));
-        itemsData.add(new ItemData("Delete Lock", R.drawable.ic_launcher));
+        // R.drawable.ic_launcher is used as a blank icon template for now
+        // until custom icons are created
+        itemsData.add(new ItemData("Enable Lockd", R.drawable.ic_launcher));
+        itemsData.add(new ItemData("Notification Settings", R.drawable.ic_launcher));
+        itemsData.add(new ItemData("Privacy Settings", R.drawable.ic_launcher));
+        itemsData.add(new ItemData("Reset Lock", R.drawable.ic_launcher));
+        //position of Other ItemData title is 4, this is used for the
+        //partition used to separate settings
+        itemsData.add(new ItemData("Other", R.drawable.ic_launcher));
+        itemsData.add(new ItemData("About", R.drawable.ic_launcher));
+        itemsData.add(new ItemData("Privacy Policy", R.drawable.ic_launcher));
         itemsData.add(new ItemData("Help", R.drawable.ic_launcher));
-        itemsData.add(new ItemData("Changelog", R.drawable.ic_launcher));
-        itemsData.add(new ItemData("Terms of Service", R.drawable.ic_launcher));
-        itemsData.add(new ItemData("Support Development", R.drawable.ic_launcher));
 
 
 
