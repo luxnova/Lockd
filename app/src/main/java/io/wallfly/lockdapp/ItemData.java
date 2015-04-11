@@ -4,6 +4,9 @@ package io.wallfly.lockdapp;
 import com.hmkcode.android.recyclerview.R;
 
 public class ItemData {
+    /**
+     * This is the Item Data Class
+     **/
     private String title;
     private int imageUrl;
 

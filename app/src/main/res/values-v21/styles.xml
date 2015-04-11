@@ -14,11 +14,10 @@
     </style>
 
     <!-- Application theme. -->
-    <style name="AppTheme" parent="AppBaseTheme">
+    <style name="AppTheme" parent="Theme.AppCompat">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-        <item name="android:windowNoTitle">true</item> <!-- Hides the Action Bar -->
-        <item name="android:windowFullscreen">true</item> <!-- Hides the status bar -->
         <item name="windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item> <!-- Hides the status bar -->
         <!--   your app branding color for the app bar -->
         <item name="android:colorPrimary">@color/lockd_bluegrey</item>
         <!--   darker variant for the status bar and contextual app bars -->
