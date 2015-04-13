@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hmkcode.android.recyclerview.R;
 
@@ -18,13 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 // must use onItemClickListener but don't know how to implement
-public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>  {
+public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implements View.OnClickListener {
     private List<ItemData> itemsData = new ArrayList<>();
-    int position;
-
 
 
     public MyAdapter(List<ItemData> itemsData) {
+
         this.itemsData = itemsData;
     }
 
@@ -43,7 +43,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>  {
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
-
+        viewHolder.imgViewIcon.setTag(position);
+        viewHolder.txtViewTitle.setTag(position);
         // - get data from your itemsData at this position
         // - replace the contents of the view with that itemsData
         viewHolder.txtViewTitle.setText(itemsData.get(position).getTitle());
@@ -67,26 +68,45 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>  {
         }
 
 
-//        viewHolder.txtViewTitle.setOnItemClickListener(this);
-//        viewHolder.imgViewIcon.setOnItemClickListener(this);
-
-        this.position = position;
+        viewHolder.txtViewTitle.setOnClickListener(this);
+        viewHolder.imgViewIcon.setOnClickListener(this);
 
     }
 
-//    @Override
-//    public void onItemClick(AdapterView<?>, View v, int position, long vid) {
-//        int id = v.getId();
-//
-//        switch (id)
-//        {
-//            case R.id.item_title:
-//                if(position == 0)
-//                {
-//                    //Create Lock activity tasks
-//                }
-//        }
-//    }
+    @Override
+    public void onClick(View v) {
+        // testing onClick and is a placeholder for actual tasks
+        int position = (int) v.getTag();
+        switch (position) {
+            case 0:
+                Toast.makeText(v.getContext(), "Enable Lock", Toast.LENGTH_SHORT).show();
+                break;
+            case 1:
+                Toast.makeText(v.getContext(), "Notification Settings", Toast.LENGTH_SHORT).show();
+                break;
+            case 2:
+                Toast.makeText(v.getContext(), "Privacy Settings", Toast.LENGTH_SHORT).show();
+                break;
+            case 3:
+                Toast.makeText(v.getContext(), "Reset Lock", Toast.LENGTH_SHORT).show();
+                break;
+//            case 4:
+//                // do nothing as 4th position is partition dividing settings
+//                break;
+            case 5:
+                Toast.makeText(v.getContext(), "About", Toast.LENGTH_SHORT).show();
+                break;
+            case 6:
+                Toast.makeText(v.getContext(), "Privacy Policy", Toast.LENGTH_SHORT).show();
+                break;
+            case 7:
+                Toast.makeText(v.getContext(), "Help", Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                // do nothing
+                break;
+        }
+    }
 
     // inner class to hold a reference to each item of RecyclerView
     public static class ViewHolder extends RecyclerView.ViewHolder {
