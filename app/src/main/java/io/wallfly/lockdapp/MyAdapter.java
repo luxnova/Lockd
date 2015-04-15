@@ -53,11 +53,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
         if (position == 4) {
             viewHolder.imgViewIcon.setVisibility(View.GONE);
 
-            //Need to find a way to convert this to 100DP, current solution is:
-            // TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 65,
-            // getResources().getDisplayMetrics());
-            //But this does NOT work because the activity has no context
-            //Need to find a way to use context to use getResources()
+
             viewHolder.txtViewTitle.setHeight(150);
         }
 
@@ -132,3 +128,4 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
         return itemsData.size();
     }
 }
+

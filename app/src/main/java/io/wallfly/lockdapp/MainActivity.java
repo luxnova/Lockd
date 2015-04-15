@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.TypedValue;
 
 import com.hmkcode.android.recyclerview.R;
 
@@ -15,12 +16,15 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
-    private Toolbar toolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initiateActivity();
+    }
+
+    private void initiateActivity() {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
 
 
@@ -47,13 +51,48 @@ public class MainActivity extends ActionBarActivity {
         recyclerView.setAdapter(mAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.bringToFront();
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        initiateActivity();
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        initiateActivity();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        cleanUpActivity();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        cleanUpActivity();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        cleanUpActivity();
+    }
+
+    /**
+     * Clean up method, set global vars to null
+     */
+    private void cleanUpActivity() {
+
+    }
 
 }
