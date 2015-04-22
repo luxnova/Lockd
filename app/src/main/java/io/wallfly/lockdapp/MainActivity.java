@@ -47,7 +47,7 @@ public class MainActivity extends ActionBarActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        MyAdapter mAdapter = new MyAdapter(itemsData);
+        MyAdapter mAdapter = new MyAdapter(this, itemsData);
         recyclerView.setAdapter(mAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
