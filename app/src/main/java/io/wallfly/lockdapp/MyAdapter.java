@@ -7,6 +7,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -21,12 +22,14 @@ import java.util.List;
 // must use onItemClickListener but don't know how to implement
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implements View.OnClickListener {
     private List<ItemData> itemsData = new ArrayList<>();
+    private Context mContext;
 
-
-    public MyAdapter(List<ItemData> itemsData) {
-
+    public MyAdapter(Context context, List<ItemData> itemsData) {
+        this.mContext = context;
         this.itemsData = itemsData;
     }
+
+
 
     // Create new views (invoked by layout manager)
     @Override
@@ -61,6 +64,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
         // May not be efficient programming, look at later
         if (position != 0) {
             viewHolder.chkBox.setVisibility(View.GONE);
+        }
+
+        //need to getWindow to disable system lock
+        if (viewHolder.chkBox.isChecked()) {
+            mContext.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+
         }
 
 
