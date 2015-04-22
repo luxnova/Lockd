@@ -56,6 +56,7 @@ public class MainActivity extends ActionBarActivity {
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
     }
 
     @Override

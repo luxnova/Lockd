@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/LockdApp.iml" filepath="$PROJECT_DIR$/LockdApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/repolockd.iml" filepath="$PROJECT_DIR$/repolockd.iml" />
     </modules>
   </component>
 </project>
