@@ -24,9 +24,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
     private List<ItemData> itemsData = new ArrayList<>();
     private Context mContext;
 
-    public MyAdapter(Context context, List<ItemData> itemsData) {
-        this.mContext = context;
+    public MyAdapter(List<ItemData> itemsData) {
         this.itemsData = itemsData;
+    }
+
+    public MyAdapter(Context context) {
+        this.mContext = context;
     }
 
 
