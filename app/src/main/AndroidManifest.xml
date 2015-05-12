@@ -10,6 +10,10 @@
         <activity
             android:name="io.wallfly.lockdapp.MainActivity"
             android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name="io.wallfly.lockdapp.CreateLockActivity"
+            android:label="@string/title_activity_create_lock" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
