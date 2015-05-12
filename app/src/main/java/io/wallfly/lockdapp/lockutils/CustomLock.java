@@ -26,8 +26,10 @@ public class CustomLock implements CustomLockListener, View.OnTouchListener {
     private boolean hold = false;
     private boolean dragging = false;
 
+    //User settings
     private static float SECONDS_BETWEEN_TAPS = 1000;
     private static int VALID_TOUCH_BOUNDS = 400;
+
     private static final String PACKAGE_NAME = "io.wallfly.lockdapp.lockseq";
 
     private double[] beginningTouchPoint;
@@ -36,7 +38,7 @@ public class CustomLock implements CustomLockListener, View.OnTouchListener {
     private Context context;
 
     private CustomLock(){
-        setContext(context);
+        setContext(Utils.context);
         Utils.clearSharedPrefs();
     }
 
@@ -48,8 +50,6 @@ public class CustomLock implements CustomLockListener, View.OnTouchListener {
     public static CustomLock getInstance(){
         if(firstInsance == null){
             firstInsance = new CustomLock();
-
-
         }
         return firstInsance;
     }
@@ -59,7 +59,7 @@ public class CustomLock implements CustomLockListener, View.OnTouchListener {
 
     @Override
     public void captureTouch(double[] point,  int sequenceNumber) {
-        point[x] = Math.round((point[x]*10)/10);
+        point[x] = Math.round((point[x]*10)/10); //rounding to the nearest ten
         point[y]= Math.round((point[y]*10)/10);
 
         Lock tap = new TapLock(point, sequenceNumber);
@@ -112,7 +112,7 @@ public class CustomLock implements CustomLockListener, View.OnTouchListener {
 
         switch (motionEvent.getAction()){
             case MotionEvent.ACTION_DOWN:
-                beginningTouchPoint = new double[]{motionEvent.getRawX(), motionEvent.getRawY()};
+                beginningTouchPoint = new double[]{motionEvent.getRawX(), motionEvent.getRawY()}; // beginning point for drag lock.
                 secondsInMillis = Calendar.getInstance().getTimeInMillis();
                 Log.i("ACTION DOWN", "Starting...");
                 return true;
@@ -120,8 +120,16 @@ public class CustomLock implements CustomLockListener, View.OnTouchListener {
             case MotionEvent.ACTION_UP:
                 Log.i("ACTION UP", "Capture Ending...");
                 if(!dragging){
+                    // If the point the the user ends at is within the touch buffer zone of the beginning point
+                    // and the point is not a valid drag ending point in reference to the beginning point
+                    if (!outOfBufferZone(new double[]{motionEvent.getRawX(), motionEvent.getRawY()})
+                            && validDragAction(new double[]{motionEvent.getRawX(), motionEvent.getRawY()})) {
+                        Toast.makeText(context, "Drag was not long enough. Lock not registered.", Toast.LENGTH_SHORT).show();
+                        secondsInMillis = 0;
+                        return true;
+                    }
+
                     secondsInMillis = (Calendar.getInstance().getTimeInMillis()) - secondsInMillis;
-                    Log.i("Seconds", "Hold " + secondsInMillis);
                     if(secondsInMillis > 1100){
                         hold = true;
                     }
@@ -136,19 +144,14 @@ public class CustomLock implements CustomLockListener, View.OnTouchListener {
                     secondsInMillis = 0;
                 }
                 else{
-                    if (outOfBufferZone(new double[]{motionEvent.getRawX(), motionEvent.getRawY()})){
                         endingTouchPoint = new double[]{motionEvent.getRawX(), motionEvent.getRawY()};
                         ++sequenceNumber;
                         captureDrag(beginningTouchPoint, endingTouchPoint, sequenceNumber);
-                    }
-                    else{
-                        Toast.makeText(context, "Drag was not long enough. Lock not registered.", Toast.LENGTH_SHORT);
-                    }
+
                 }
                 return true;
 
             case MotionEvent.ACTION_MOVE:{
-
                 if(beginningTouchPoint[x] != motionEvent.getRawX()
                         && beginningTouchPoint[y] != motionEvent.getRawY()
                         && outOfBufferZone(new double[]{motionEvent.getRawX(), motionEvent.getRawY()})){
@@ -159,6 +162,25 @@ public class CustomLock implements CustomLockListener, View.OnTouchListener {
             }
         }
         return false;
+    }
+
+    /**
+     *
+     * Tests to see if the point is within the range of the begining of the drag action's first point.
+     * (The point on Action Down).
+     *
+     * This helps differentiate from holds and attempts to register a drag lock.
+     * Measures if a drag attempt was made.
+     *
+     *
+     * @param point - the point being measured.
+     * @return - whether the point is within the
+     */
+    private boolean validDragAction(double[] point) {
+        return Math.abs(beginningTouchPoint[x] - point[x]) >= 30
+                && Math.abs(beginningTouchPoint[x] - point[x]) < VALID_TOUCH_BOUNDS
+                || Math.abs(beginningTouchPoint[y] - point[y]) >= 30
+                && Math.abs(beginningTouchPoint[y] - point[y]) < VALID_TOUCH_BOUNDS;
     }
 
     /**
@@ -204,6 +226,8 @@ public class CustomLock implements CustomLockListener, View.OnTouchListener {
     public float getValidLockBounds(){
         return VALID_TOUCH_BOUNDS;
     }
+
+
 
     private void printLock() {
         String lockData = "a";
