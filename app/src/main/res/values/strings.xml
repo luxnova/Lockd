@@ -4,4 +4,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_create_lock">CreateLockActivity</string>
+    <string name="package_name">io.wallfly.lockdapp.lockseq</string>
+
 </resources>

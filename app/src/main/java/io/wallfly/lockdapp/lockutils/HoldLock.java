@@ -7,12 +7,12 @@ package io.wallfly.lockdapp.lockutils;
  */
 public class HoldLock extends Lock {
     public HoldLock(float seconds, double[] point, int sequenceNumber){
-        setType('H');
+        setType("H");
         this.seconds = seconds;
         this.point = point;
         this.sequenceNumber = sequenceNumber;
     }
     public HoldLock(){
-       setType('H');
+       setType("H");
     }
 }

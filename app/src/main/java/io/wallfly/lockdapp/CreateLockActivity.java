@@ -4,17 +4,24 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.hmkcode.android.recyclerview.R;
 
+import java.util.ArrayList;
+
 import io.wallfly.lockdapp.lockutils.CustomLockListener;
+import io.wallfly.lockdapp.lockutils.DragLock;
+import io.wallfly.lockdapp.lockutils.Lock;
 
 
 public class CreateLockActivity extends ActionBarActivity {
@@ -36,6 +43,8 @@ public class CreateLockActivity extends ActionBarActivity {
 
         CustomLockListener customLockListener = CustomLockListener.getInstance();
         RelativeLayout lockLayout = (RelativeLayout) findViewById(R.id.lockLayout);
+        ImageButton button = (ImageButton)findViewById(R.id.imageButton);
+
         lockLayout.setOnTouchListener(customLockListener);
 
         TextView myImage = new TextView(this);
@@ -63,6 +72,62 @@ public class CreateLockActivity extends ActionBarActivity {
     }
 
 
+    public void saveLock(View v){
+        displayUserLock();
+    }
+
+    /**
+     * Displays the user's lock combination that they want to save.
+     */
+    private void displayUserLock() {
+        ArrayList<Lock> lockCombo = getLockCombo();
+        createLockSequence(lockCombo);
+        //showSequence();
+    }
+
+    /**
+     * Sets each Lock with the next lock in the sequence to faciliate the display animation.
+     *
+     * @param lockCombo - list of all the user's locks in order.
+     */
+    private void createLockSequence(ArrayList<Lock> lockCombo) {
+        int sequenceNumber = 0;
+        while (lockCombo.get(sequenceNumber+1) != null){
+            Lock lock = lockCombo.get(sequenceNumber);
+            lock.setNextLock(lockCombo.get(sequenceNumber+1));
+            sequenceNumber++;
+        }
+    }
+
+
+    /**
+     * Parses the string lock data into a Lock object of the three types.
+     *
+     * @param lockData - The string containing the essential information for a lock.
+     * @return - the lock object from the data
+     */
+    private Lock getLock(String lockData) {
+        return Lock.parseLock(lockData);
+    }
+
+    /**
+     * Retrieves a list of the lock combinations in order.
+     *
+     * @return - list of lock combination.
+     */
+    public ArrayList<Lock> getLockCombo() {
+        String lockData = "0";
+        int sequenceNumber = 0;
+
+        ArrayList<Lock> lockCombo = new ArrayList<>();
+        while(!lockData.isEmpty()){
+            sequenceNumber++;
+            lockData = Utils.getStringFromSharedPrefs(getString(R.string.package_name) + sequenceNumber);
+            lockCombo.add(getLock(lockData));
+        }
+        return lockCombo;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -84,4 +149,6 @@ public class CreateLockActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
 }

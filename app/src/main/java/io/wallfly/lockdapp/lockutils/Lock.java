@@ -3,8 +3,6 @@ package io.wallfly.lockdapp.lockutils;
 import android.util.Log;
 import android.text.TextUtils;
 
-import org.w3c.dom.Text;
-
 import java.util.Arrays;
 
 
@@ -16,18 +14,18 @@ import java.util.Arrays;
  * STRATEGY DESIGN PATTERN
  */
 public class Lock {
-    char type;
+    String type;
     double[] point;
     boolean isTimed = true;
     float seconds;
     int sequenceNumber;
     Lock nextLock;
 
-    public void setType(char type) {
+    public void setType(String type) {
         this.type = type;
     }
 
-    public char getType() {
+    public String getType() {
         return type;
     }
 
@@ -88,11 +86,34 @@ public class Lock {
 
     @Override
     public String toString() {
-        String[] lockData = new String[]{Integer.toString(getSequenceNumber()), Character.toString(getType()),
+        String[] lockData = new String[]{Integer.toString(getSequenceNumber()), getType(),
                 Double.toString(getxCoord()), Double.toString(getYCoord()), Float.toString(seconds)};
 
-        TextUtils.join(",",lockData);
+        TextUtils.join(",", lockData);
         return Arrays.toString(lockData);
+    }
+
+    public static Lock parseLock(String lockData){
+        String[] lockArray = lockData.split(",");
+
+        int sequenceNumber = Integer.parseInt(lockArray[0]);
+        String type = lockArray[1];
+        double[] point = new double[]{Double.parseDouble(lockArray[2]), Double.parseDouble(lockArray[3])};
+
+        Lock lock;
+        if(type.equals("D")){
+            double[] endPoint = new double[]{Double.parseDouble(lockArray[4]), Double.parseDouble(lockArray[5])};
+            lock = new DragLock(point, endPoint, sequenceNumber);
+        }
+        else if(type.equals("H")){
+            float seconds = Float.parseFloat(lockArray[4]);
+            lock = new HoldLock(seconds, point, sequenceNumber);
+        }
+        else{
+            lock = new TapLock(point, sequenceNumber);
+        }
+
+        return lock;
     }
 
     public void setNextLock(Lock lock){this.nextLock = lock;}

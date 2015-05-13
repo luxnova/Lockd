@@ -14,14 +14,15 @@ public class DragLock extends Lock {
     double[] endPoint;
 
     public DragLock(double[] startPoint, double[] endPoint, int sequenceNumber){
-        setType('D');
+        setType("D");
         setTimed(false);
         this.point = startPoint;
         this.endPoint = endPoint;
         this.sequenceNumber = sequenceNumber;
     }
+
     public DragLock(){
-        setType('D');
+        setType("D");
         setTimed(false);
     }
 
@@ -76,7 +77,7 @@ public class DragLock extends Lock {
     public String toString() {
         String[] lockData = new String[]{
                 Integer.toString(getSequenceNumber()),
-                Character.toString(getType()),
+                getType(),
                 Double.toString(getStartXCoord()),
                 Double.toString(getStartYCoord()),
                 Double.toString(getEndXCoord()),

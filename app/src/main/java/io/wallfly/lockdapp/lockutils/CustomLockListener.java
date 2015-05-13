@@ -3,9 +3,10 @@ package io.wallfly.lockdapp.lockutils;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import com.hmkcode.android.recyclerview.R;
 
 import io.wallfly.lockdapp.Utils;
 
@@ -18,7 +19,6 @@ import io.wallfly.lockdapp.Utils;
  */
 public class CustomLockListener extends CustomLockBaseListener {
 
-    private static final String PACKAGE_NAME = "io.wallfly.lockdapp.lockseq";
 
     private static CustomLockListener firstInsance = null;
 
@@ -95,7 +95,7 @@ public class CustomLockListener extends CustomLockBaseListener {
      * @param lock - The lock being stored. Drag, Tap or Hold.
      */
     public void storeLock(Lock lock){
-        Utils.saveToSharedPrefsString(PACKAGE_NAME + sequenceNumber, lock.toString());
+        Utils.saveToSharedPrefsString(getContext().getString(R.string.package_name) + sequenceNumber, lock.toString());
         Log.i("CapturingLock", lock.toString());
         printLock();
         Toast.makeText(getContext(), lock.print(), Toast.LENGTH_SHORT).show();
@@ -122,7 +122,7 @@ public class CustomLockListener extends CustomLockBaseListener {
         int sequenceNumber = 0;
         while(!lockData.isEmpty()){
             sequenceNumber++;
-            lockData = Utils.getStringFromSharedPrefs(PACKAGE_NAME + sequenceNumber);
+            lockData = Utils.getStringFromSharedPrefs(getContext().getString(R.string.package_name) + sequenceNumber);
             Log.i("PrintingLockSequence", lockData);
         }
     }
