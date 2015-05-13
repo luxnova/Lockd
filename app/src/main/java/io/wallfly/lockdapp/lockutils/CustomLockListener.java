@@ -1,6 +1,10 @@
 package io.wallfly.lockdapp.lockutils;
 
 import android.util.Log;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import io.wallfly.lockdapp.Utils;
@@ -64,6 +68,11 @@ public class CustomLockListener extends CustomLockBaseListener {
         roundPoints(startingPoint, endingPoint);
         Lock dragLock = new DragLock(startingPoint, endingPoint, sequenceNumber);
         storeLock(dragLock);
+        ImageView imageView = new ImageView(getContext());
+        RelativeLayout.LayoutParams vp =
+                new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+        imageView.setLayoutParams(vp);
     }
 
     /**
@@ -80,7 +89,6 @@ public class CustomLockListener extends CustomLockBaseListener {
         storeLock(holdLock);
     }
 
-
     /**
      * Stores a lock in the shared prefs and Logs the details of the lock.
      *
@@ -93,6 +101,12 @@ public class CustomLockListener extends CustomLockBaseListener {
         Toast.makeText(getContext(), lock.print(), Toast.LENGTH_SHORT).show();
     }
 
+
+    /**
+     * Takes a number of points and rounds them to the nearest 2 decimal places.
+     * 
+     * @param points - the points whose coordinates will be rounded.
+     */
     private void roundPoints(double[]...points){
         for(double[] point : points){
             point[x] = Utils.round(point[x], 2);

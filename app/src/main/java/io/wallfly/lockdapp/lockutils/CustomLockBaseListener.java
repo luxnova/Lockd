@@ -1,14 +1,13 @@
 package io.wallfly.lockdapp.lockutils;
 
 import android.content.Context;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
 import java.util.Calendar;
-
-import io.wallfly.lockdapp.Utils;
 
 /**
  * Created by JoshuaWilliams on 4/30/15.
@@ -23,8 +22,9 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
     private static final int MINIMUM_DRAG_START_DISTANCE = 30;
 
     //User settings
-    private static float SECONDS_BETWEEN_TAPS = 1000;
-    private static int VALID_TOUCH_BOUNDS = 400;
+    private float SECONDS_BETWEEN_TAPS = 1000;
+    private int VALID_TOUCH_BOUNDS = 400;
+    private boolean VIBRATE_ON_TOUCH = true;
 
 
     private double[] beginningTouchPoint;
@@ -65,10 +65,6 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
 
 
 
-
-
-
-
     /********************************* On Touch **********************************/
 
     @Override
@@ -78,11 +74,14 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
             case MotionEvent.ACTION_DOWN:
                 beginningTouchPoint = new double[]{motionEvent.getRawX(), motionEvent.getRawY()}; // beginning point for drag lock.
                 secondsInMillis = Calendar.getInstance().getTimeInMillis();
+                vibrateIfActive();
                 Log.i("ACTION DOWN", "Starting...");
                 return true;
 
             case MotionEvent.ACTION_UP:
                 double[] endingTouchPoint = new double[]{motionEvent.getRawX(), motionEvent.getRawY()};
+
+                vibrateIfActive();
 
                 Log.i("ACTION UP", "Capture Ending...");
                 if(!dragging){
@@ -160,6 +159,10 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
         return D >= VALID_TOUCH_BOUNDS;
     }
 
+    private void vibrateIfActive(){
+        if(VIBRATE_ON_TOUCH) ((Vibrator)context.getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
+    }
+
     /**
      * Setting number for home many seconds between each lock sequence action.
      * Works Like a buffer, the higher the seconds, the less security.
@@ -173,7 +176,6 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
     public float getSecondsBetweenTaps(){
         return SECONDS_BETWEEN_TAPS;
     }
-
 
     /**
      * Sets the lock bounds for a valid touch.
@@ -191,13 +193,16 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
         return VALID_TOUCH_BOUNDS;
     }
 
-
-
-
     public void setContext(Context context){this.context = context;}
 
     public Context getContext(){
         return context;
+    }
+
+    public void setVibrateOnTouch(boolean vibrate){this.VIBRATE_ON_TOUCH = vibrate;}
+
+    public boolean getVibrateOnTouch(){
+        return VIBRATE_ON_TOUCH;
     }
 
 }

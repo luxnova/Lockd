@@ -21,6 +21,7 @@ public class Lock {
     boolean isTimed = true;
     float seconds;
     int sequenceNumber;
+    Lock nextLock;
 
     public void setType(char type) {
         this.type = type;
@@ -93,4 +94,8 @@ public class Lock {
         TextUtils.join(",",lockData);
         return Arrays.toString(lockData);
     }
+
+    public void setNextLock(Lock lock){this.nextLock = lock;}
+    public Lock getNextLock(){return nextLock;}
+
 }
