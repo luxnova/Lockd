@@ -115,9 +115,7 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
                 return true;
 
             case MotionEvent.ACTION_MOVE:{
-                if(beginningTouchPoint[x] != motionEvent.getRawX()
-                        && beginningTouchPoint[y] != motionEvent.getRawY()
-                        && outOfBufferZone(new double[]{motionEvent.getRawX(), motionEvent.getRawY()})){
+                if(movedOutOfBufferZone(new double[]{motionEvent.getRawX(), motionEvent.getRawY()})){
                     dragging = true;
                     Log.i("DRAG EVENT", "" + motionEvent.getRawX() + " " + motionEvent.getRawY());
                 }
@@ -125,6 +123,20 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
             }
         }
         return false;
+    }
+
+    /**
+     * For Dragging
+     *
+     * User has moved finger far enough from the touch point on the screen that they began at.
+     *
+     * @param point - The point being measured against.
+     * @return - whether the user has moved far enough from the beginning point.
+     */
+    private boolean movedOutOfBufferZone(double[] point) {
+        return beginningTouchPoint[x] != point[x]
+                && beginningTouchPoint[y] != point[y]
+                && outOfBufferZone(point);
     }
 
     /**
