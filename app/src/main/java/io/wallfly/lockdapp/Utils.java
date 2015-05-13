@@ -27,6 +27,13 @@ public class Utils {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = preferences.edit();
         editor.clear();
-        editor.commit();
+        editor.apply();
+    }
+
+    public static double round(double valueToRound, int numberOfDecimalPlaces)
+    {
+        double multipicationFactor = Math.pow(10, numberOfDecimalPlaces);
+        double interestedInZeroDPs = valueToRound * multipicationFactor;
+        return Math.round(interestedInZeroDPs) / multipicationFactor;
     }
 }

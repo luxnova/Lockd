@@ -8,7 +8,7 @@ import android.widget.RelativeLayout;
 
 import com.hmkcode.android.recyclerview.R;
 
-import io.wallfly.lockdapp.lockutils.CustomLock;
+import io.wallfly.lockdapp.lockutils.CustomLockListener;
 
 
 public class CreateLockActivity extends ActionBarActivity {
@@ -28,9 +28,9 @@ public class CreateLockActivity extends ActionBarActivity {
             Utils.context = getApplicationContext();
         }
 
-        CustomLock customLock = CustomLock.getInstance();
+        CustomLockListener customLockListener = CustomLockListener.getInstance();
         RelativeLayout lockLayout = (RelativeLayout) findViewById(R.id.lockLayout);
-        lockLayout.setOnTouchListener(customLock);
+        lockLayout.setOnTouchListener(customLockListener);
     }
 
 

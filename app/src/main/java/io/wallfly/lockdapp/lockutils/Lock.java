@@ -78,9 +78,11 @@ public class Lock {
         return sequenceNumber;
     }
 
-    public void print(){
-        Log.i("Lock", getType() + " Sequence Number - " + getSequenceNumber() + " isTimed - " + isTimed()
-                + " Point (" + getxCoord() + ", " + getYCoord() + ")" + " Seconds - " + getSeconds());
+    public String print(){
+        String data = getType() + " Sequence Number - " + getSequenceNumber() + " isTimed - " + isTimed()
+                + " Point (" + getxCoord() + ", " + getYCoord() + ")" + " Seconds - " + getSeconds();
+        Log.i("Lock", data);
+        return data;
     }
 
     @Override

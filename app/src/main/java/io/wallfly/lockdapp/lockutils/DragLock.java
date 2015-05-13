@@ -64,10 +64,12 @@ public class DragLock extends Lock {
     }
 
     @Override
-    public void print(){
-        Log.i("Lock", getType() + " Sequence Number - " + getSequenceNumber() + " isTimed - " + isTimed()
+    public String print(){
+        String data = getType() + " Sequence Number - " + getSequenceNumber() + " isTimed - " + isTimed()
                 + " Start Point (" + getStartXCoord() + ", " + getStartYCoord() + ")" +
-                " End Point (" + getEndXCoord() + ", " + getEndYCoord() + ")" + " Seconds - " + getSeconds());
+                " End Point (" + getEndXCoord() + ", " + getEndYCoord() + ")" + " Seconds - " + getSeconds();
+        Log.i("Lock", data);
+        return data;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package io.wallfly.lockdapp.lockutils;
 
 import android.content.Context;
-import android.graphics.Point;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,93 +13,58 @@ import io.wallfly.lockdapp.Utils;
 /**
  * Created by JoshuaWilliams on 4/30/15.
  *
- * This is the class for a Lock that implements a combined Dragging, touching and holding
- *
- * Singleton Design Pattern
+ * Abstract for any Lockd custom lock listener
  */
-public class CustomLock implements CustomLockListener, View.OnTouchListener {
-
-    private static CustomLock firstInsance = null;
-    private int sequenceNumber;
-    private static long secondsInMillis;
-    private boolean hold = false;
+public abstract class CustomLockBaseListener implements  View.OnTouchListener{
+    public int sequenceNumber;
+    private long secondsInMillis;
     private boolean dragging = false;
+    private static final float TAP_BOUNDS = 650;
+    private static final int MINIMUM_DRAG_START_DISTANCE = 30;
 
     //User settings
     private static float SECONDS_BETWEEN_TAPS = 1000;
     private static int VALID_TOUCH_BOUNDS = 400;
 
-    private static final String PACKAGE_NAME = "io.wallfly.lockdapp.lockseq";
 
     private double[] beginningTouchPoint;
-    private double[] endingTouchPoint;
 
     private Context context;
 
-    private CustomLock(){
-        setContext(Utils.context);
-        Utils.clearSharedPrefs();
-    }
+    public static final int x = 0;
+    public static final int y = 1;
 
     /**
-     * Retrieve singleton instance.
+     * Method to save a simple tap on the screen.
      *
-     * @return - CustomLock instance
+     * @param point - the x and y coordinates of the tap location on the screen.
+     * @param sequenceNumber - The number in the lock sequence that the lock is currently.
      */
-    public static CustomLock getInstance(){
-        if(firstInsance == null){
-            firstInsance = new CustomLock();
-        }
-        return firstInsance;
-    }
+    public abstract void captureTouch(double[] point, int sequenceNumber);
+
+    /**
+     * Method to save a drag on the screen.
+     * This works by capturing 2 points, the beginning point of the drag and the ending point of the drag.
+     * The user can drag how ever and wherever they want, as long as they initially start at the beginning point
+     * and end at the ending point.
+     *
+     * @param startingPoint - Where the user taps to begin the drag.
+     * @param endingPoint - Where the user picks their finger up off the screen at.
+     * @param sequenceNumber - The number in the lock sequence that the lock is currently.
+     */
+    public abstract void captureDrag(double[] startingPoint, double[] endingPoint, int sequenceNumber);
+
+    /**
+     * Method to capture a hold on the screen
+     *
+     * @param point - the x and y coordinates of the hold location on the screen.
+     * @param seconds - how long the hold was performed.
+     * @param sequenceNumber - The number in the lock sequence that the lock is currently.
+     */
+    public abstract void captureHold(double[] point, float seconds, int sequenceNumber);
 
 
-    /************************** Lock Interface *****************************************/
 
-    @Override
-    public void captureTouch(double[] point,  int sequenceNumber) {
-        point[x] = Math.round((point[x]*10)/10); //rounding to the nearest ten
-        point[y]= Math.round((point[y]*10)/10);
-
-        Lock tap = new TapLock(point, sequenceNumber);
-        Utils.saveToSharedPrefsString(PACKAGE_NAME + sequenceNumber, tap.toString());
-        Log.i("CapturingLock", tap.toString());
-        printLock();
-    }
-
-
-    @Override
-    public void captureDrag(double[] startingPoint, double[] endingPoint, int sequenceNumber){
-        double startXCoord = Math.round((startingPoint[x]*10)/10);
-        double startYCoord = Math.round((startingPoint[y]*10)/10);
-        double endXCoord = Math.round((endingPoint[x]*10)/10);
-        double endYCoord = Math.round((endingPoint[y]*10)/10);
-
-        startingPoint = new double[]{startXCoord, startYCoord};
-        endingPoint = new double[]{endXCoord, endYCoord};
-
-        Lock dragLock = new DragLock(startingPoint, endingPoint, sequenceNumber);
-
-        Utils.saveToSharedPrefsString(PACKAGE_NAME + sequenceNumber, dragLock.toString());
-        Log.i("CapturingLock", dragLock.toString());
-        printLock();
-
-        dragging = false;
-    }
-
-
-    @Override
-    public void captureHold(double[] point, float seconds, int sequenceNumber) {
-        point[x] = Math.round((point[x]*10)/10);
-        point[y]= Math.round((point[y]*10)/10);
-
-        Lock holdLock = new HoldLock(seconds, point, sequenceNumber);
-        Utils.saveToSharedPrefsString(PACKAGE_NAME + sequenceNumber, holdLock.toString());
-        Log.i("CapturingLock", holdLock.toString());
-        printLock();
-        hold = false;
-
-    }
 
 
 
@@ -118,36 +82,36 @@ public class CustomLock implements CustomLockListener, View.OnTouchListener {
                 return true;
 
             case MotionEvent.ACTION_UP:
+                double[] endingTouchPoint = new double[]{motionEvent.getRawX(), motionEvent.getRawY()};
+
                 Log.i("ACTION UP", "Capture Ending...");
                 if(!dragging){
                     // If the point the the user ends at is within the touch buffer zone of the beginning point
                     // and the point is not a valid drag ending point in reference to the beginning point
-                    if (!outOfBufferZone(new double[]{motionEvent.getRawX(), motionEvent.getRawY()})
-                            && validDragAction(new double[]{motionEvent.getRawX(), motionEvent.getRawY()})) {
+                    if (!outOfBufferZone(endingTouchPoint)
+                            && validDragAction(endingTouchPoint)) {
                         Toast.makeText(context, "Drag was not long enough. Lock not registered.", Toast.LENGTH_SHORT).show();
                         secondsInMillis = 0;
                         return true;
                     }
 
-                    secondsInMillis = (Calendar.getInstance().getTimeInMillis()) - secondsInMillis;
-                    if(secondsInMillis > 1100){
-                        hold = true;
-                    }
-                    secondsInMillis += SECONDS_BETWEEN_TAPS;
                     ++sequenceNumber;
-                    if(hold){
-                        captureHold(new double[] {motionEvent.getRawX(), motionEvent.getRawY()}, secondsInMillis, sequenceNumber);
+                    secondsInMillis = (Calendar.getInstance().getTimeInMillis()) - secondsInMillis;
+
+                    if(secondsInMillis > TAP_BOUNDS){
+                        secondsInMillis += SECONDS_BETWEEN_TAPS;
+                        captureHold(endingTouchPoint, secondsInMillis, sequenceNumber);
                     }
                     else{
-                        captureTouch(new double[] {motionEvent.getRawX(), motionEvent.getRawY()},  sequenceNumber);
+                        captureTouch(endingTouchPoint, sequenceNumber);
                     }
+
                     secondsInMillis = 0;
                 }
                 else{
-                        endingTouchPoint = new double[]{motionEvent.getRawX(), motionEvent.getRawY()};
-                        ++sequenceNumber;
-                        captureDrag(beginningTouchPoint, endingTouchPoint, sequenceNumber);
-
+                    ++sequenceNumber;
+                    captureDrag(beginningTouchPoint, endingTouchPoint, sequenceNumber);
+                    dragging = false;
                 }
                 return true;
 
@@ -177,9 +141,9 @@ public class CustomLock implements CustomLockListener, View.OnTouchListener {
      * @return - whether the point is within the
      */
     private boolean validDragAction(double[] point) {
-        return Math.abs(beginningTouchPoint[x] - point[x]) >= 30
+        return Math.abs(beginningTouchPoint[x] - point[x]) >= MINIMUM_DRAG_START_DISTANCE
                 && Math.abs(beginningTouchPoint[x] - point[x]) < VALID_TOUCH_BOUNDS
-                || Math.abs(beginningTouchPoint[y] - point[y]) >= 30
+                || Math.abs(beginningTouchPoint[y] - point[y]) >= MINIMUM_DRAG_START_DISTANCE
                 && Math.abs(beginningTouchPoint[y] - point[y]) < VALID_TOUCH_BOUNDS;
     }
 
@@ -229,26 +193,11 @@ public class CustomLock implements CustomLockListener, View.OnTouchListener {
 
 
 
-    private void printLock() {
-        String lockData = "a";
-        int sequenceNumber = 0;
-        while(!lockData.isEmpty()){
-            sequenceNumber++;
-            lockData = Utils.getStringFromSharedPrefs(PACKAGE_NAME + sequenceNumber);
-            Log.i("PrintingLockSequence", lockData);
-        }
+
+    public void setContext(Context context){this.context = context;}
+
+    public Context getContext(){
+        return context;
     }
 
-    public void setContext(Context context){
-        this.context = context;
-    }
-
-
-
-
-    /**
-     *
-     */
 }
-
-
