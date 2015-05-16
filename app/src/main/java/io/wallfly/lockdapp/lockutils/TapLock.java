@@ -7,14 +7,15 @@ package io.wallfly.lockdapp.lockutils;
  */
 public class TapLock extends Lock {
 
-    public TapLock(double[] point, int sequenceNumber){
-        setType('T');
+    public TapLock(float[] point, int sequenceNumber){
+        setType("T");
         setTimed(false);
-        this.point = point;
-        this.sequenceNumber = sequenceNumber;
+        setPoint(point);
+        setSequenceNumber(sequenceNumber);
     }
     public TapLock(){
-        setType('T');
+        setType("T");
         setTimed(false);
     }
+
 }

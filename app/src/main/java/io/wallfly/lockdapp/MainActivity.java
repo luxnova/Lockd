@@ -71,10 +71,8 @@ public class MainActivity extends ActionBarActivity implements ObservableScrollV
         mRecyclerView.setScrollViewCallbacks(this);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setHasFixedSize(false);
-        if(Utils.context == null)
-        {
-            Utils.context = getApplicationContext();
-        }
+
+        checkUtilsContext();
 
 
         final View headerView = LayoutInflater.from(this).inflate(R.layout.recycler_header, null);
@@ -169,6 +167,13 @@ public class MainActivity extends ActionBarActivity implements ObservableScrollV
                 ViewHelper.setScaleY(mTitleView, scale);
             }
         });
+    }
+
+    private void checkUtilsContext() {
+        if(Utils.getContext() == null)
+        {
+            Utils.setContext(getApplicationContext());
+        }
     }
 
     @Override

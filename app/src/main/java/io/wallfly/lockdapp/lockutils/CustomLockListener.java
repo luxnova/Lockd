@@ -22,9 +22,12 @@ public class CustomLockListener extends CustomLockBaseListener {
 
     private static CustomLockListener firstInsance = null;
 
-
+    /**
+     * Constructor, initializes the context of the instance by default with the current context of the
+     * Utils class.
+     */
     private CustomLockListener(){
-        setContext(Utils.context);
+        setContext(Utils.getContext());
         Utils.clearSharedPrefs();
     }
 
@@ -47,7 +50,7 @@ public class CustomLockListener extends CustomLockBaseListener {
      * @param sequenceNumber - The number in the lock sequence that the lock is currently.
      */
     @Override
-    public void captureTouch(double[] point, int sequenceNumber){
+    public void captureTouch(float[] point, int sequenceNumber){
         roundPoints(point);
         Lock tapLock = new TapLock(point, sequenceNumber);
         storeLock(tapLock);
@@ -64,7 +67,7 @@ public class CustomLockListener extends CustomLockBaseListener {
      * @param sequenceNumber - The number in the lock sequence that the lock is currently.
      */
     @Override
-    public void captureDrag(double[] startingPoint, double[] endingPoint, int sequenceNumber){
+    public void captureDrag(float[] startingPoint, float[] endingPoint, int sequenceNumber){
         roundPoints(startingPoint, endingPoint);
         Lock dragLock = new DragLock(startingPoint, endingPoint, sequenceNumber);
         storeLock(dragLock);
@@ -83,7 +86,7 @@ public class CustomLockListener extends CustomLockBaseListener {
      * @param sequenceNumber - The number in the lock sequence that the lock is currently.
      */
     @Override
-    public void captureHold(double[] point, float seconds, int sequenceNumber){
+    public void captureHold(float[] point, float seconds, int sequenceNumber){
         roundPoints(point);
         Lock holdLock = new HoldLock(seconds, point, sequenceNumber);
         storeLock(holdLock);
@@ -107,8 +110,8 @@ public class CustomLockListener extends CustomLockBaseListener {
      * 
      * @param points - the points whose coordinates will be rounded.
      */
-    private void roundPoints(double[]...points){
-        for(double[] point : points){
+    private void roundPoints(float[]...points){
+        for(float[] point : points){
             point[x] = Utils.round(point[x], 2);
             point[y] = Utils.round(point[y], 2);
         }

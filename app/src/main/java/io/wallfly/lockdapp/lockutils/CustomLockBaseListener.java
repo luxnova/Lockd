@@ -1,13 +1,18 @@
 package io.wallfly.lockdapp.lockutils;
 
 import android.content.Context;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
+import com.hmkcode.android.recyclerview.R;
+
 import java.util.Calendar;
+
+import io.wallfly.lockdapp.Utils;
 
 /**
  * Created by JoshuaWilliams on 4/30/15.
@@ -15,24 +20,30 @@ import java.util.Calendar;
  * Abstract for any Lockd custom lock listener
  */
 public abstract class CustomLockBaseListener implements  View.OnTouchListener{
+    private static final String LOG_TAG = "CustomLockBaseListener";
+
     public int sequenceNumber;
-    private long secondsInMillis;
+    private int holdSeconds;
     private boolean dragging = false;
-    private static final float TAP_BOUNDS = 650;
+    private boolean userIsHolding = false;
+    private static final int TAP_BOUNDS = 650;
     private static final int MINIMUM_DRAG_START_DISTANCE = 30;
 
     //User settings
-    private float SECONDS_BETWEEN_TAPS = 1000;
-    private int VALID_TOUCH_BOUNDS = 400;
-    private boolean VIBRATE_ON_TOUCH = true;
+    private static float SECONDS_BETWEEN_TAPS = 1000;
+    private static int VALID_TOUCH_BOUNDS = 400;
+    private static boolean VIBRATE_ON_TOUCH = true;
 
 
-    private double[] beginningTouchPoint;
+    private float[] beginningTouchPoint;
 
     private Context context;
 
     public static final int x = 0;
     public static final int y = 1;
+
+    Handler timerHandler = new Handler();
+
 
     /**
      * Method to save a simple tap on the screen.
@@ -40,7 +51,7 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
      * @param point - the x and y coordinates of the tap location on the screen.
      * @param sequenceNumber - The number in the lock sequence that the lock is currently.
      */
-    public abstract void captureTouch(double[] point, int sequenceNumber);
+    public abstract void captureTouch(float[] point, int sequenceNumber);
 
     /**
      * Method to save a drag on the screen.
@@ -52,7 +63,7 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
      * @param endingPoint - Where the user picks their finger up off the screen at.
      * @param sequenceNumber - The number in the lock sequence that the lock is currently.
      */
-    public abstract void captureDrag(double[] startingPoint, double[] endingPoint, int sequenceNumber);
+    public abstract void captureDrag(float[] startingPoint, float[] endingPoint, int sequenceNumber);
 
     /**
      * Method to capture a hold on the screen
@@ -61,7 +72,7 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
      * @param seconds - how long the hold was performed.
      * @param sequenceNumber - The number in the lock sequence that the lock is currently.
      */
-    public abstract void captureHold(double[] point, float seconds, int sequenceNumber);
+    public abstract void captureHold(float[] point, float seconds, int sequenceNumber);
 
 
 
@@ -72,16 +83,14 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
 
         switch (motionEvent.getAction()){
             case MotionEvent.ACTION_DOWN:
-                beginningTouchPoint = new double[]{motionEvent.getRawX(), motionEvent.getRawY()}; // beginning point for drag lock.
-                secondsInMillis = Calendar.getInstance().getTimeInMillis();
+                beginningTouchPoint = new float[]{motionEvent.getRawX(), motionEvent.getRawY()}; // beginning point for drag lock.
                 vibrateIfActive();
-                Log.i("ACTION DOWN", "Starting...");
+                activateHoldTimer();
+                Log.i("ACTION DOWN", "Starting..." + holdSeconds);
                 return true;
 
             case MotionEvent.ACTION_UP:
-                double[] endingTouchPoint = new double[]{motionEvent.getRawX(), motionEvent.getRawY()};
-
-                vibrateIfActive();
+                float[] endingTouchPoint = new float[]{motionEvent.getRawX(), motionEvent.getRawY()};
 
                 Log.i("ACTION UP", "Capture Ending...");
                 if(!dragging){
@@ -89,41 +98,57 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
                     // and the point is not a valid drag ending point in reference to the beginning point
                     if (!outOfBufferZone(endingTouchPoint)
                             && validDragAction(endingTouchPoint)) {
-                        Toast.makeText(context, "Drag was not long enough. Lock not registered.", Toast.LENGTH_SHORT).show();
-                        secondsInMillis = 0;
+                        Toast.makeText(context, Utils.getString(R.string.drag_not_registered), Toast.LENGTH_SHORT).show();
+                        holdSeconds = 0;
                         return true;
                     }
 
-                    ++sequenceNumber;
-                    secondsInMillis = (Calendar.getInstance().getTimeInMillis()) - secondsInMillis;
-
-                    if(secondsInMillis > TAP_BOUNDS){
-                        secondsInMillis += SECONDS_BETWEEN_TAPS;
-                        captureHold(endingTouchPoint, secondsInMillis, sequenceNumber);
+                    sequenceNumber++;
+                    if(userIsHolding){
+                        captureHold(endingTouchPoint, holdSeconds, sequenceNumber);
                     }
                     else{
                         captureTouch(endingTouchPoint, sequenceNumber);
                     }
-
-                    secondsInMillis = 0;
+                    holdSeconds = 0;
                 }
                 else{
+                    vibrateIfActive();
                     ++sequenceNumber;
                     captureDrag(beginningTouchPoint, endingTouchPoint, sequenceNumber);
                     dragging = false;
                 }
+
+                cancelHoldTimer();
                 return true;
 
             case MotionEvent.ACTION_MOVE:{
-                if(movedOutOfBufferZone(new double[]{motionEvent.getRawX(), motionEvent.getRawY()})){
+                if(movedOutOfBufferZone(new float[]{motionEvent.getRawX(), motionEvent.getRawY()})){
                     dragging = true;
-                    Log.i("DRAG EVENT", "" + motionEvent.getRawX() + " " + motionEvent.getRawY());
+                    cancelHoldTimer();
                 }
                 break;
             }
         }
         return false;
     }
+
+    /**
+     * Starts the timer to see if user is performing a hold.
+     */
+    private void activateHoldTimer() {
+        timerHandler.postDelayed(timerRunnable, 0);
+    }
+
+    /**
+     * Cancels the hold timer by removing callbacks from the handler.
+     */
+    private void cancelHoldTimer(){
+        userIsHolding = false;
+        holdSeconds = 0;
+        timerHandler.removeCallbacks(timerRunnable);
+    }
+
 
     /**
      * For Dragging
@@ -133,7 +158,7 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
      * @param point - The point being measured against.
      * @return - whether the user has moved far enough from the beginning point.
      */
-    private boolean movedOutOfBufferZone(double[] point) {
+    private boolean movedOutOfBufferZone(float[] point) {
         return beginningTouchPoint[x] != point[x]
                 && beginningTouchPoint[y] != point[y]
                 && outOfBufferZone(point);
@@ -151,7 +176,7 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
      * @param point - the point being measured.
      * @return - whether the point is within the
      */
-    private boolean validDragAction(double[] point) {
+    private boolean validDragAction(float[] point) {
         return Math.abs(beginningTouchPoint[x] - point[x]) >= MINIMUM_DRAG_START_DISTANCE
                 && Math.abs(beginningTouchPoint[x] - point[x]) < VALID_TOUCH_BOUNDS
                 || Math.abs(beginningTouchPoint[y] - point[y]) >= MINIMUM_DRAG_START_DISTANCE
@@ -165,14 +190,14 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
      * @param point - point being measured against the starting point and the bounds.
      * @return - whether or not the point is out of the buffer zone.
      */
-    private boolean outOfBufferZone(double[] point) {
+    private boolean outOfBufferZone(float[] point) {
         //equation for testing if point is inside a circle.
         double D = Math.sqrt(Math.pow(beginningTouchPoint[x] - point[x], 2) + Math.pow(beginningTouchPoint[y] - point[y], 2));
         return D >= VALID_TOUCH_BOUNDS;
     }
 
     private void vibrateIfActive(){
-        if(VIBRATE_ON_TOUCH) ((Vibrator)context.getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
+        if(VIBRATE_ON_TOUCH) ((Vibrator)getContext().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
     }
 
     /**
@@ -181,11 +206,11 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
      *
      * @param seconds - milliseconds for the buffer.
      */
-    public void setSecondsBetweenTaps(float seconds){
+    public static void setSecondsBetweenTaps(float seconds){
         SECONDS_BETWEEN_TAPS = seconds;
     }
 
-    public float getSecondsBetweenTaps(){
+    public static float getSecondsBetweenTaps(){
         return SECONDS_BETWEEN_TAPS;
     }
 
@@ -197,12 +222,18 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
      *
      * @param lockBounds - the "radius" of the circle being calculated.
      */
-    public void setValidLockBounds(int lockBounds){
+    public static void setValidLockBounds(int lockBounds){
         VALID_TOUCH_BOUNDS = lockBounds;
     }
 
-    public float getValidLockBounds(){
+    public static float getValidLockBounds(){
         return VALID_TOUCH_BOUNDS;
+    }
+
+    public static void setVibrateOnTouch(boolean vibrate){VIBRATE_ON_TOUCH = vibrate;}
+
+    public static boolean getVibrateOnTouch(){
+        return VIBRATE_ON_TOUCH;
     }
 
     public void setContext(Context context){this.context = context;}
@@ -211,10 +242,19 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
         return context;
     }
 
-    public void setVibrateOnTouch(boolean vibrate){this.VIBRATE_ON_TOUCH = vibrate;}
 
-    public boolean getVibrateOnTouch(){
-        return VIBRATE_ON_TOUCH;
-    }
+    //Timer to track if user is performing a hold.
+    Runnable timerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            holdSeconds++;
+            if(holdSeconds == TAP_BOUNDS) {
+                Log.i(LOG_TAG, "...Holding...");
+                userIsHolding = true;
+                vibrateIfActive();
+            }
+            timerHandler.postDelayed(this, 1);
+        }
+    };
 
 }

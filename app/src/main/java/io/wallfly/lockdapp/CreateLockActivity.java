@@ -1,74 +1,39 @@
 package io.wallfly.lockdapp;
 
-import android.graphics.Typeface;
-import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hmkcode.android.recyclerview.R;
 
 import java.util.ArrayList;
 
 import io.wallfly.lockdapp.lockutils.CustomLockListener;
-import io.wallfly.lockdapp.lockutils.DragLock;
 import io.wallfly.lockdapp.lockutils.Lock;
 
 
 public class CreateLockActivity extends ActionBarActivity {
 
 
+    private RelativeLayout lockLayout;
+    private static final String LOG_TAG = "CreateLockActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_lock);
-
         initiateActivity();
     }
 
     private void initiateActivity() {
-        if(Utils.context == null)
-        {
-            Utils.context = getApplicationContext();
-        }
-
+        checkUtilsContext();
         CustomLockListener customLockListener = CustomLockListener.getInstance();
-        RelativeLayout lockLayout = (RelativeLayout) findViewById(R.id.lockLayout);
-        ImageButton button = (ImageButton)findViewById(R.id.imageButton);
-
+        lockLayout = (RelativeLayout) findViewById(R.id.lockLayout);
         lockLayout.setOnTouchListener(customLockListener);
-
-        TextView myImage = new TextView(this);
-        myImage.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-
-
-
-        /*
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            myImage.setBackground(getDrawable(R.drawable.touch_point_circle));
-            myImage.setText("T");
-            //myImage.setTypeface(null, Typeface.BOLD);
-            myImage.setTextSize(50);
-            myImage.setGravity(Gravity.CENTER);
-        }
-        else{
-            myImage.setBackground(getResources().getDrawable(R.drawable.touch_point_circle));
-        }
-
-        lockLayout.addView(myImage);
-        */
-
     }
 
 
@@ -78,12 +43,18 @@ public class CreateLockActivity extends ActionBarActivity {
 
     /**
      * Displays the user's lock combination that they want to save.
-     */
+     **/
     private void displayUserLock() {
         ArrayList<Lock> lockCombo = getLockCombo();
+        if(lockCombo.size() == 0){
+            Toast.makeText(this, "Create a lock sequence to display it.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         createLockSequence(lockCombo);
-        //showSequence();
+        showSequence(lockCombo);
     }
+
+
 
     /**
      * Sets each Lock with the next lock in the sequence to faciliate the display animation.
@@ -92,7 +63,7 @@ public class CreateLockActivity extends ActionBarActivity {
      */
     private void createLockSequence(ArrayList<Lock> lockCombo) {
         int sequenceNumber = 0;
-        while (lockCombo.get(sequenceNumber+1) != null){
+        while (sequenceNumber+1 != lockCombo.size() && lockCombo.size() != 0){
             Lock lock = lockCombo.get(sequenceNumber);
             lock.setNextLock(lockCombo.get(sequenceNumber+1));
             sequenceNumber++;
@@ -123,9 +94,29 @@ public class CreateLockActivity extends ActionBarActivity {
         while(!lockData.isEmpty()){
             sequenceNumber++;
             lockData = Utils.getStringFromSharedPrefs(getString(R.string.package_name) + sequenceNumber);
-            lockCombo.add(getLock(lockData));
+            Lock lock = getLock(lockData);
+            if(lock != null){
+                lockCombo.add(getLock(lockData));
+            }
+            else{
+                break;
+            }
+            lockData = Utils.getStringFromSharedPrefs(getString(R.string.package_name) + (sequenceNumber+1));
         }
+
+
         return lockCombo;
+    }
+
+    private void showSequence(ArrayList<Lock> lockCombo) {
+        lockCombo.get(0).showLockSequence(this, lockLayout);
+    }
+
+    private void checkUtilsContext() {
+        if(Utils.getContext() == null)
+        {
+            Utils.setContext(getApplicationContext());
+        }
     }
 
     @Override

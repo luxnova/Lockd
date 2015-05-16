@@ -11,14 +11,14 @@ import java.util.Arrays;
  * Creation of a Drag Lock.
  */
 public class DragLock extends Lock {
-    double[] endPoint;
+    float[] endPoint;
 
-    public DragLock(double[] startPoint, double[] endPoint, int sequenceNumber){
+    public DragLock(float[] startPoint, float[] endPoint, int sequenceNumber){
         setType("D");
         setTimed(false);
-        this.point = startPoint;
-        this.endPoint = endPoint;
-        this.sequenceNumber = sequenceNumber;
+        setStartPoint(startPoint);
+        setEndPoint(endPoint);
+        setSequenceNumber(sequenceNumber);
     }
 
     public DragLock(){
@@ -27,64 +27,54 @@ public class DragLock extends Lock {
     }
 
 
-
-    public void setEndPoint(double[] endPoint){
+    public void setEndPoint(float[] endPoint){
         this.endPoint = endPoint;
     }
 
 
-    public double[] getEndPoint() {
+    public float[] getEndPoint() {
         return endPoint;
     }
 
 
-    public double getEndXCoord(){
+    public float getEndXCoord(){
         return endPoint[0];
     }
 
 
-    public double getEndYCoord(){
+    public float getEndYCoord(){
         return endPoint[1];
     }
 
-    public void setStartPoint(double[] startPoint){
-        this.point = startPoint;
+    public void setStartPoint(float[] startPoint){
+        setPoint(startPoint);
     }
 
-    public double[] getStartPoint() {
+    public float[] getStartPoint() {
         return super.getPoint();
     }
 
-    public double getStartXCoord() {
+    public float getStartXCoord() {
         return super.getxCoord();
     }
 
 
-    public double getStartYCoord(){
-        return this.point[1];
+    public float getStartYCoord(){
+        return super.getYCoord();
     }
 
     @Override
     public String print(){
         String data = getType() + " Sequence Number - " + getSequenceNumber() + " isTimed - " + isTimed()
                 + " Start Point (" + getStartXCoord() + ", " + getStartYCoord() + ")" +
-                " End Point (" + getEndXCoord() + ", " + getEndYCoord() + ")" + " Seconds - " + getSeconds();
+                " End Point (" + getEndXCoord() + ", " + getEndYCoord() + ")" + " Seconds - " + getHoldSeconds();
         Log.i("Lock", data);
         return data;
     }
 
     @Override
     public String toString() {
-        String[] lockData = new String[]{
-                Integer.toString(getSequenceNumber()),
-                getType(),
-                Double.toString(getStartXCoord()),
-                Double.toString(getStartYCoord()),
-                Double.toString(getEndXCoord()),
-                Double.toString(getEndYCoord())
-        };
-
-        TextUtils.join(",", lockData);
-        return Arrays.toString(lockData);
+        return getSequenceNumber() + " " + getType() + " " + getStartXCoord() + " "
+                + getStartYCoord() + " " + " " + getEndXCoord() + " " + getEndYCoord();
     }
 }
