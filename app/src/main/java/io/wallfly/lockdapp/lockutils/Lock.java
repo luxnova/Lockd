@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import com.hmkcode.android.recyclerview.R;
 
+import java.util.Objects;
+
 import io.wallfly.lockdapp.Utils;
 
 
@@ -108,6 +110,7 @@ public class Lock {
      * @return - the lock created from the data.
      */
     public static Lock parseLock(String lockData){
+        Log.i(LOG_TAG, lockData);
         String[] lockArray = lockData.split(("\\s+"));
 
         Lock lock = null;
@@ -188,6 +191,8 @@ public class Lock {
         pointView.setVisibility(View.VISIBLE);
         Utils.setViewBackground(R.drawable.touch_point_circle, pointView);
 
+        //TODO: Differentiate beginning of drag point from end of drag point.
+
         if(lock instanceof DragLock){
             TextView endPointView = Utils.getPointView(lock.getType(),
                     ((DragLock)lock).getEndXCoord() ,((DragLock)lock).getEndYCoord());
@@ -214,7 +219,7 @@ public class Lock {
             int firstDigit = Character.getNumericValue(String.valueOf(getCurrentLock().getHoldSeconds()).charAt(0));
             Log.i(LOG_TAG, animationSeconds + " | " + firstDigit);
 
-            if(animationSeconds == firstDigit || firstDigit == 1 && animationSeconds == firstDigit++){
+            if(animationSeconds == firstDigit && firstDigit != 1|| firstDigit == 1 && animationSeconds == ++firstDigit){
                 animationSeconds = 0;
                 timerHandler.removeCallbacks(timerRunnable);
                 getPointView().setVisibility(View.GONE);
@@ -256,4 +261,39 @@ public class Lock {
     private void setCurrentLock(Lock currentLock) {this.currentLock = currentLock;}
 
     private Lock getCurrentLock() {return currentLock;}
+
+    /**
+     * Tests to see if the lock is equal to another lock by testing it's attributes.
+     * The test generally consists of 'if the distance of the user's lock point/points are are within the
+     * original lock point/points radius based off of the user's valid lock bounds settings'.
+     * Basically if the user is in the same general area of their original lock sequence's point.
+     *
+     * @param object - the lock object.
+     * @return - if the lock is equal.
+     */
+    @Override
+    public boolean equals(Object object){
+        if((object instanceof Lock))
+        {
+            Lock lock = ((Lock)object);
+
+            if(this instanceof DragLock && lock instanceof DragLock){
+                double startPointDist = Utils.getDistance(((DragLock) lock).getStartPoint(), ((DragLock) this).getStartPoint());
+                double endPointDist = Utils.getDistance(((DragLock) lock).getEndPoint(), ((DragLock) this).getEndPoint());
+
+                return startPointDist <= (CustomLockBaseListener.getValidLockBounds() + 100) //Added lock validity padding for drag since drag can be kind of tricky
+                        && endPointDist <= (CustomLockBaseListener.getValidLockBounds() + 100); //Added lock validity padding for drag since drag can be kind of tricky
+            }
+            else if(this instanceof TapLock && lock instanceof TapLock){
+                return Utils.getDistance(lock.getPoint(), getPoint()) <= CustomLockBaseListener.getValidLockBounds();
+            }
+            else if(this instanceof HoldLock && lock instanceof HoldLock){
+                //If the user's hold is generally between the buffers.
+                return getHoldSeconds() >=((HoldLock)lock).getLowerBuffer()
+                        && getHoldSeconds() <= ((HoldLock)lock).getUpperBuffer()
+                        && Utils.getDistance(lock.getPoint(), getPoint()) <= CustomLockBaseListener.getValidLockBounds();
+            }
+        }
+        return false;
+    }
 }

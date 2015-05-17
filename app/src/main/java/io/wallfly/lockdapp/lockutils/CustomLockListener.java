@@ -1,13 +1,12 @@
 package io.wallfly.lockdapp.lockutils;
 
+import android.app.Activity;
 import android.util.Log;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.hmkcode.android.recyclerview.R;
 
+import io.wallfly.lockdapp.CreateLockActivity;
 import io.wallfly.lockdapp.Utils;
 
 /**
@@ -18,9 +17,9 @@ import io.wallfly.lockdapp.Utils;
  * Singleton Design Pattern
  */
 public class CustomLockListener extends CustomLockBaseListener {
-
-
+    private static final String LOG_TAG = "CustomLockListener";
     private static CustomLockListener firstInsance = null;
+    private CreateLockActivity callingActivity;
 
     /**
      * Constructor, initializes the context of the instance by default with the current context of the
@@ -53,7 +52,13 @@ public class CustomLockListener extends CustomLockBaseListener {
     public void captureTouch(float[] point, int sequenceNumber){
         roundPoints(point);
         Lock tapLock = new TapLock(point, sequenceNumber);
-        storeLock(tapLock);
+
+        if(isCreatingLock()){
+            storeLock(tapLock);
+        }
+        else{
+            checkLock(sequenceNumber, tapLock);
+        }
     }
 
     /**
@@ -70,12 +75,13 @@ public class CustomLockListener extends CustomLockBaseListener {
     public void captureDrag(float[] startingPoint, float[] endingPoint, int sequenceNumber){
         roundPoints(startingPoint, endingPoint);
         Lock dragLock = new DragLock(startingPoint, endingPoint, sequenceNumber);
-        storeLock(dragLock);
-        ImageView imageView = new ImageView(getContext());
-        RelativeLayout.LayoutParams vp =
-                new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT);
-        imageView.setLayoutParams(vp);
+
+        if(isCreatingLock()) {
+            storeLock(dragLock);
+        }
+        else{
+            checkLock(sequenceNumber, dragLock);
+        }
     }
 
     /**
@@ -89,7 +95,36 @@ public class CustomLockListener extends CustomLockBaseListener {
     public void captureHold(float[] point, float seconds, int sequenceNumber){
         roundPoints(point);
         Lock holdLock = new HoldLock(seconds, point, sequenceNumber);
-        storeLock(holdLock);
+
+        if(isCreatingLock()){
+            storeLock(holdLock);
+        }
+        else{
+            checkLock(sequenceNumber, holdLock);
+        }
+    }
+
+    /**
+     * Checks to see if the lock passed matches the appropriate lock in the sequence.
+     *
+     * @param sequenceNumber - The number the user is currently on in the saved lock sequence.
+     * @param lock - the type of lock passed.
+     */
+    private boolean checkLock(int sequenceNumber, Lock lock) {
+        Log.i(LOG_TAG, "Check Lock " + sequenceNumber);
+        Lock sequenceLock = Utils.getLockFromSequence(sequenceNumber);
+        if(sequenceLock.equals(lock)){
+            Toast.makeText(getContext(), "Correct Lock", Toast.LENGTH_SHORT).show();
+            if(Utils.getLockFromSequence((sequenceNumber + 1)) == null) {
+                Toast.makeText(getContext(), "Correct Pattern", Toast.LENGTH_LONG).show();
+                getCallingActivity().setLockConfirmed(true);
+                setSequenceNumber(0);
+            }
+            return true;
+        }
+        Toast.makeText(getContext(), "Incorrect Operation", Toast.LENGTH_SHORT).show();
+        setSequenceNumber(0);
+        return false;
     }
 
     /**
@@ -98,7 +133,7 @@ public class CustomLockListener extends CustomLockBaseListener {
      * @param lock - The lock being stored. Drag, Tap or Hold.
      */
     public void storeLock(Lock lock){
-        Utils.saveToSharedPrefsString(getContext().getString(R.string.package_name) + sequenceNumber, lock.toString());
+        Utils.saveToSharedPrefsString(getContext().getString(R.string.package_name) + getSequenceNumber(), lock.toString());
         Log.i("CapturingLock", lock.toString());
         printLock();
         Toast.makeText(getContext(), lock.print(), Toast.LENGTH_SHORT).show();
@@ -127,8 +162,14 @@ public class CustomLockListener extends CustomLockBaseListener {
             sequenceNumber++;
             lockData = Utils.getStringFromSharedPrefs(getContext().getString(R.string.package_name) + sequenceNumber);
             Log.i("PrintingLockSequence", lockData);
+            lockData = Utils.getStringFromSharedPrefs(getContext().getString(R.string.package_name) + (sequenceNumber + 1));
         }
     }
+
+    public void setCallingActivity(Activity activity){this.callingActivity = (CreateLockActivity) activity;}
+    private CreateLockActivity getCallingActivity(){return callingActivity;}
+
+
 }
 
 

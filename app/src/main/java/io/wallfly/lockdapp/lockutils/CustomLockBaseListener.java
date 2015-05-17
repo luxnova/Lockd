@@ -19,28 +19,29 @@ import io.wallfly.lockdapp.Utils;
  *
  * Abstract for any Lockd custom lock listener
  */
-public abstract class CustomLockBaseListener implements  View.OnTouchListener{
+public abstract class CustomLockBaseListener implements View.OnTouchListener{
     private static final String LOG_TAG = "CustomLockBaseListener";
 
-    public int sequenceNumber;
+    private int sequenceNumber;
     private int holdSeconds;
     private boolean dragging = false;
     private boolean userIsHolding = false;
-    private static final int TAP_BOUNDS = 650;
-    private static final int MINIMUM_DRAG_START_DISTANCE = 30;
+    private boolean creatingLock = true;
+    private static final int TAP_BOUNDS = 1000; //milliseconds to track if touch is a tap or hold.
+    private static final int MINIMUM_DRAG_START_DISTANCE = 30; //density pixels
+    private static final int VALID_DRAG_DISTANCE = 500; //density pixels
 
     //User settings
-    private static float SECONDS_BETWEEN_TAPS = 1000;
-    private static int VALID_TOUCH_BOUNDS = 400;
+    private static float SECONDS_BETWEEN_TAPS = 1000; //milliseconds
+    private static int VALID_TOUCH_BOUNDS = 150; //density pixels
     private static boolean VIBRATE_ON_TOUCH = true;
-
 
     private float[] beginningTouchPoint;
 
     private Context context;
 
-    public static final int x = 0;
-    public static final int y = 1;
+    static final int x = 0;
+    static final int y = 1;
 
     Handler timerHandler = new Handler();
 
@@ -96,29 +97,28 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
                 if(!dragging){
                     // If the point the the user ends at is within the touch buffer zone of the beginning point
                     // and the point is not a valid drag ending point in reference to the beginning point
-                    if (!outOfBufferZone(endingTouchPoint)
-                            && validDragAction(endingTouchPoint)) {
-                        Toast.makeText(context, Utils.getString(R.string.drag_not_registered), Toast.LENGTH_SHORT).show();
+                    if (!validDragAction(endingTouchPoint) && userAttemptedDrag(endingTouchPoint)) {
+                        cancelHoldTimer();
+                        if(isCreatingLock()){
+                            Toast.makeText(getContext(), Utils.getString(R.string.drag_not_registered), Toast.LENGTH_SHORT).show();
+                        }
                         holdSeconds = 0;
                         return true;
                     }
 
-                    sequenceNumber++;
                     if(userIsHolding){
-                        captureHold(endingTouchPoint, holdSeconds, sequenceNumber);
+                        captureHold(endingTouchPoint, holdSeconds, ++sequenceNumber);
                     }
                     else{
-                        captureTouch(endingTouchPoint, sequenceNumber);
+                        captureTouch(endingTouchPoint, ++sequenceNumber);
                     }
                     holdSeconds = 0;
                 }
                 else{
                     vibrateIfActive();
-                    ++sequenceNumber;
-                    captureDrag(beginningTouchPoint, endingTouchPoint, sequenceNumber);
+                    captureDrag(beginningTouchPoint, endingTouchPoint, ++sequenceNumber);
                     dragging = false;
                 }
-
                 cancelHoldTimer();
                 return true;
 
@@ -131,6 +131,16 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
             }
         }
         return false;
+    }
+
+    /**
+     * Test to see if the user attempted to register a drag but the distance was not long enough.
+     *
+     * @param endingTouchPoint - the point being measured to get the distance
+     * @return - whether the drag was valid or not.
+     */
+    private boolean userAttemptedDrag(float[] endingTouchPoint) {
+        return Utils.getDistance(beginningTouchPoint, endingTouchPoint) > MINIMUM_DRAG_START_DISTANCE;
     }
 
     /**
@@ -159,46 +169,48 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
      * @return - whether the user has moved far enough from the beginning point.
      */
     private boolean movedOutOfBufferZone(float[] point) {
-        return beginningTouchPoint[x] != point[x]
-                && beginningTouchPoint[y] != point[y]
-                && outOfBufferZone(point);
+        return Utils.getDistance(beginningTouchPoint, point) >= VALID_DRAG_DISTANCE;
     }
 
     /**
-     *
      * Tests to see if the point is within the range of the begining of the drag action's first point.
      * (The point on Action Down).
      *
      * This helps differentiate from holds and attempts to register a drag lock.
      * Measures if a drag attempt was made.
      *
-     *
      * @param point - the point being measured.
      * @return - whether the point is within the
      */
     private boolean validDragAction(float[] point) {
-        return Math.abs(beginningTouchPoint[x] - point[x]) >= MINIMUM_DRAG_START_DISTANCE
-                && Math.abs(beginningTouchPoint[x] - point[x]) < VALID_TOUCH_BOUNDS
-                || Math.abs(beginningTouchPoint[y] - point[y]) >= MINIMUM_DRAG_START_DISTANCE
-                && Math.abs(beginningTouchPoint[y] - point[y]) < VALID_TOUCH_BOUNDS;
+        return movedOutOfBufferZone(point) && userAttemptedDrag(point);
     }
 
-    /**
-     * Checks to see if the point being registered is within the the circle of the at which the action started.
-     * This prevents very close and indistinguishable touches from being created and saved.
-     *
-     * @param point - point being measured against the starting point and the bounds.
-     * @return - whether or not the point is out of the buffer zone.
-     */
-    private boolean outOfBufferZone(float[] point) {
-        //equation for testing if point is inside a circle.
-        double D = Math.sqrt(Math.pow(beginningTouchPoint[x] - point[x], 2) + Math.pow(beginningTouchPoint[y] - point[y], 2));
-        return D >= VALID_TOUCH_BOUNDS;
-    }
+
 
     private void vibrateIfActive(){
         if(VIBRATE_ON_TOUCH) ((Vibrator)getContext().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
     }
+
+
+
+    /*************************************** USER SETTINGS ********************************************/
+
+    /**
+     * Sets the lock bounds for a valid touch.
+     * Works as a circle's radius from the point in reference.
+     *
+     * The higher the the bounds, the less security.
+     *
+     * @param lockBounds - the "radius" of the circle being calculated.
+     */
+    public static void setValidLockBounds(int lockBounds){VALID_TOUCH_BOUNDS = lockBounds;}
+
+    public static float getValidLockBounds(){return VALID_TOUCH_BOUNDS;}
+
+    public static void setVibrateOnTouch(boolean vibrate){VIBRATE_ON_TOUCH = vibrate;}
+
+    public static boolean getVibrateOnTouch(){return VIBRATE_ON_TOUCH;}
 
     /**
      * Setting number for home many seconds between each lock sequence action.
@@ -214,34 +226,26 @@ public abstract class CustomLockBaseListener implements  View.OnTouchListener{
         return SECONDS_BETWEEN_TAPS;
     }
 
-    /**
-     * Sets the lock bounds for a valid touch.
-     * Works as a circle's radius from the point in reference.
-     *
-     * The higher the the bounds, the less security.
-     *
-     * @param lockBounds - the "radius" of the circle being calculated.
-     */
-    public static void setValidLockBounds(int lockBounds){
-        VALID_TOUCH_BOUNDS = lockBounds;
-    }
 
-    public static float getValidLockBounds(){
-        return VALID_TOUCH_BOUNDS;
-    }
+    /*********************************** END OF SETTINGS ********************************************/
 
-    public static void setVibrateOnTouch(boolean vibrate){VIBRATE_ON_TOUCH = vibrate;}
-
-    public static boolean getVibrateOnTouch(){
-        return VIBRATE_ON_TOUCH;
-    }
 
     public void setContext(Context context){this.context = context;}
 
-    public Context getContext(){
-        return context;
+    public Context getContext(){return context;}
+
+    public boolean isCreatingLock() {
+        return creatingLock;
     }
 
+    public void setCreatingLock(boolean creatingLock) {
+        if(!creatingLock) setSequenceNumber(0);
+        this.creatingLock = creatingLock;
+    }
+
+    public void setSequenceNumber(int mSequenceNumber){sequenceNumber = mSequenceNumber;}
+
+    public int getSequenceNumber(){return sequenceNumber;}
 
     //Timer to track if user is performing a hold.
     Runnable timerRunnable = new Runnable() {

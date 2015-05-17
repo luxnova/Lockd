@@ -16,11 +16,13 @@ import io.wallfly.lockdapp.lockutils.CustomLockListener;
 import io.wallfly.lockdapp.lockutils.Lock;
 
 
-public class CreateLockActivity extends ActionBarActivity {
+public class CreateLockActivity extends ActionBarActivity  {
 
 
     private RelativeLayout lockLayout;
     private static final String LOG_TAG = "CreateLockActivity";
+    private boolean lockConfirmed = false;
+    private CustomLockListener customLockListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,29 +33,47 @@ public class CreateLockActivity extends ActionBarActivity {
 
     private void initiateActivity() {
         checkUtilsContext();
-        CustomLockListener customLockListener = CustomLockListener.getInstance();
+        customLockListener = CustomLockListener.getInstance();
+        customLockListener.setCallingActivity(this);
         lockLayout = (RelativeLayout) findViewById(R.id.lockLayout);
         lockLayout.setOnTouchListener(customLockListener);
     }
 
 
-    public void saveLock(View v){
+    /**
+     * On click listener method for the saveLockView.
+     *
+     * @param v - the view on which the method will operate.
+     */
+    public void saveLockOnClick(View v){
         displayUserLock();
+        confirmLock();
+    }
+
+    /**
+     * Make the user to confirm the lock inputed.
+     */
+    private void confirmLock() {
+        Toast.makeText(this, "Confirm Lock.", Toast.LENGTH_SHORT).show();
+        if(Utils.getLockFromSequence(1) == null) {
+            showNoLockToast();
+            return;
+        }
+        customLockListener.setCreatingLock(false); //Allows the listener to act as a test rather than creation.
     }
 
     /**
      * Displays the user's lock combination that they want to save.
      **/
     private void displayUserLock() {
-        ArrayList<Lock> lockCombo = getLockCombo();
+        ArrayList<Lock> lockCombo = Utils.getLockCombo();
         if(lockCombo.size() == 0){
-            Toast.makeText(this, "Create a lock sequence to display it.", Toast.LENGTH_SHORT).show();
+            showNoLockToast();
             return;
         }
         createLockSequence(lockCombo);
         showSequence(lockCombo);
     }
-
 
 
     /**
@@ -71,43 +91,6 @@ public class CreateLockActivity extends ActionBarActivity {
     }
 
 
-    /**
-     * Parses the string lock data into a Lock object of the three types.
-     *
-     * @param lockData - The string containing the essential information for a lock.
-     * @return - the lock object from the data
-     */
-    private Lock getLock(String lockData) {
-        return Lock.parseLock(lockData);
-    }
-
-    /**
-     * Retrieves a list of the lock combinations in order.
-     *
-     * @return - list of lock combination.
-     */
-    public ArrayList<Lock> getLockCombo() {
-        String lockData = "0";
-        int sequenceNumber = 0;
-
-        ArrayList<Lock> lockCombo = new ArrayList<>();
-        while(!lockData.isEmpty()){
-            sequenceNumber++;
-            lockData = Utils.getStringFromSharedPrefs(getString(R.string.package_name) + sequenceNumber);
-            Lock lock = getLock(lockData);
-            if(lock != null){
-                lockCombo.add(getLock(lockData));
-            }
-            else{
-                break;
-            }
-            lockData = Utils.getStringFromSharedPrefs(getString(R.string.package_name) + (sequenceNumber+1));
-        }
-
-
-        return lockCombo;
-    }
-
     private void showSequence(ArrayList<Lock> lockCombo) {
         lockCombo.get(0).showLockSequence(this, lockLayout);
     }
@@ -118,6 +101,8 @@ public class CreateLockActivity extends ActionBarActivity {
             Utils.setContext(getApplicationContext());
         }
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -140,6 +125,19 @@ public class CreateLockActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    /**
+     * Shows a toast for no lock being saved.
+     */
+    public void showNoLockToast(){
+        Toast.makeText(this, "Create a lock sequence to display it.", Toast.LENGTH_SHORT).show();
+    }
+
+    public void setLockConfirmed(boolean lockConfirmed){
+        displayUserLock();
+        this.lockConfirmed = lockConfirmed;
+    }
+
 
 
 }
