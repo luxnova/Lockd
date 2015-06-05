@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    >
+
+    <include layout="@layout/toolbar"
+        android:visibility="invisible"
+        android:id="@+id/include" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:elevation="5dp"
+        android:gravity="center_vertical"
+        android:layout_toRightOf="@+id/image"
+        android:layout_alignBottom="@+id/image"
+        android:layout_alignTop="@+id/image"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/image"
+        android:visibility="visible"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="3dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:elevation="5dp"
+        android:transitionName="@string/selection"
+        />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/title">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.CardView
+                xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/card_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                card_view:cardCornerRadius="5dp"
+                card_view:cardBackgroundColor="@android:color/transparent"
+                android:elevation="5dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                >
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clickable="true"
+                    android:background="@drawable/ripple_standard">
+
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:id="@+id/clock_icon"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:src="@drawable/clock_icon"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="20dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:text="Toggle this setting to display the lock screen clock in the standard 12 hour clock format or the 24 hour military time format"
+                        android:id="@+id/clock_text"
+                        android:layout_alignTop="@+id/clock_icon"
+                        android:layout_alignBottom="@+id/clock_icon"
+                        android:gravity="center_vertical"
+                        android:paddingLeft="20dp"
+                        android:textSize="12sp"
+                        android:layout_toRightOf="@+id/clock_icon"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true" />
+
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:id="@+id/weather_icon"
+                        android:src="@drawable/weather_icon"
+                        android:layout_below="@+id/clock_icon"
+                        android:layout_toLeftOf="@+id/clock_text"
+                        android:layout_toStartOf="@+id/clock_text"
+                        android:layout_marginTop="25dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:text="Toggle this setting if you want the weather to be displayed on your lock screen."
+                        android:id="@+id/weather_text"
+                        android:gravity="center_vertical"
+                        android:paddingLeft="20dp"
+                        android:textSize="12sp"
+                        android:layout_alignBottom="@+id/weather_icon"
+                        android:layout_toRightOf="@+id/weather_icon"
+                        android:layout_alignTop="@+id/weather_icon"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true" />
+
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:id="@+id/vibrate_icon"
+                        android:src="@drawable/vibrate_icon"
+                        android:layout_marginTop="25dp"
+                        android:layout_below="@+id/weather_icon"
+                        android:layout_toLeftOf="@+id/weather_text"
+                        android:layout_toStartOf="@+id/weather_text" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:text="Toggle this setting if you want your phone to vibrate whenever you touch the screen to unlock it."
+                        android:id="@+id/vibrate_text"
+                        android:gravity="center_vertical"
+                        android:paddingLeft="20dp"
+                        android:textSize="12sp"
+                        android:layout_alignBottom="@+id/vibrate_icon"
+                        android:layout_toRightOf="@+id/vibrate_icon"
+                        android:layout_alignTop="@+id/vibrate_icon"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true" />
+
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:id="@+id/seconds_icon"
+                        android:src="@drawable/seconds_icon"
+                        android:layout_marginTop="25dp"
+                        android:layout_below="@+id/vibrate_icon"
+                        android:layout_alignRight="@+id/vibrate_icon"
+                        android:layout_alignEnd="@+id/vibrate_icon" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:text="This setting allows you to set how many seconds between each operation (drag, hold or tap) the lock screen will wait before it cancels the combination and marks it as an invalid attempt."
+                        android:id="@+id/seconds_text"
+                        android:gravity="center_vertical"
+                        android:paddingLeft="20dp"
+                        android:textSize="12sp"
+                        android:layout_alignBottom="@+id/seconds_icon"
+                        android:layout_toRightOf="@+id/seconds_icon"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
+                        android:paddingRight="20dp" />
+
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:id="@+id/touch_point_icon"
+                        android:src="@drawable/touch_icon"
+                        android:layout_marginTop="25dp"
+                        android:layout_below="@+id/seconds_text"
+                        android:layout_alignRight="@+id/seconds_icon"
+                        android:layout_alignEnd="@+id/seconds_icon"
+                        android:layout_alignBottom="@+id/touch_text" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:text="This setting allows you to set the radius of a valid touch. Each time you touch the screen, we check to see if the point where you touched is close to the point you actually set when you created the combination. So the larger you set the radius that we check by, the more likely you will touch the correct spot when attempting and vice versa."
+                        android:id="@+id/touch_text"
+                        android:gravity="center_vertical"
+                        android:paddingLeft="20dp"
+                        android:textSize="12sp"
+                        android:layout_below="@+id/seconds_text"
+                        android:layout_marginTop="25dp"
+                        android:layout_alignLeft="@+id/seconds_text"
+                        android:layout_alignStart="@+id/seconds_text"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
+                        android:paddingRight="20dp" />
+
+                    <ImageView
+                        android:id="@+id/help"
+                        android:layout_width="match_parent"
+                        android:layout_height="350dp"
+                        android:src="@drawable/help_valid_touch_picture"
+                        android:layout_below="@id/touch_text"
+                        android:layout_alignLeft="@+id/touch_point_icon"
+                        android:layout_alignStart="@+id/touch_point_icon"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginRight="20dp" />
+
+                </RelativeLayout>
+            </android.support.v7.widget.CardView>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_below="@+id/card_view"/>
+        </RelativeLayout>
+
+    </ScrollView>
+
+
+</RelativeLayout>

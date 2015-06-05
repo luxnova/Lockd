@@ -6,7 +6,7 @@
     <statePointEntry>
       <state      
         class = "com.android.tools.idea.editors.navigation.model.MenuState"      
-        className = "io.wallfly.lockdapp.CreateLockActivity"/>
+        className = "io.wallfly.lockdapp.activities.CreateLockActivity"/>
       <point      
         x = "1768"      
         y = "100"/>
@@ -14,7 +14,7 @@
     <statePointEntry>
       <state      
         class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
-        className = "io.wallfly.lockdapp.CreateLockActivity"/>
+        className = "io.wallfly.lockdapp.activities.CreateLockActivity"/>
       <point      
         x = "500"      
         y = "100"/>
@@ -22,7 +22,7 @@
     <statePointEntry>
       <state      
         class = "com.android.tools.idea.editors.navigation.model.ActivityState"      
-        className = "io.wallfly.lockdapp.MainActivity"/>
+        className = "io.wallfly.lockdapp.activities.MainActivity"/>
       <point      
         x = "500"      
         y = "1488"/>

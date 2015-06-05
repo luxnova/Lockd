@@ -10,10 +10,6 @@ import android.widget.Toast;
 
 import com.hmkcode.android.recyclerview.R;
 
-import java.util.Calendar;
-
-import io.wallfly.lockdapp.Utils;
-
 /**
  * Created by JoshuaWilliams on 4/30/15.
  *
@@ -31,10 +27,14 @@ public abstract class CustomLockBaseListener implements View.OnTouchListener{
     private static final int MINIMUM_DRAG_START_DISTANCE = 30; //density pixels
     private static final int VALID_DRAG_DISTANCE = 500; //density pixels
 
+    //DO NOT MODIFY
+    private static final float MINIMUM_LOCK_BOUNDS = 70; //Never set minimum less that 70. This will make it extremely hard for user to unlock device.
+    private static final float MAXIMUM_LOCK_BOUNDS = 415;//Never set maximum about 415. This will make it extremely easy for anyone to unlock device.
+
     //User settings
-    private static float SECONDS_BETWEEN_TAPS = 1000; //milliseconds
-    private static int VALID_TOUCH_BOUNDS = 150; //density pixels
-    private static boolean VIBRATE_ON_TOUCH = true;
+    private static float SECONDS_BETWEEN_TAPS; //milliseconds
+    private static float VALID_TOUCH_BOUNDS; //density pixels
+    private static boolean VIBRATE_ON_TOUCH;
 
     private float[] beginningTouchPoint;
 
@@ -44,6 +44,8 @@ public abstract class CustomLockBaseListener implements View.OnTouchListener{
     static final int y = 1;
 
     Handler timerHandler = new Handler();
+
+
 
 
     /**
@@ -199,18 +201,39 @@ public abstract class CustomLockBaseListener implements View.OnTouchListener{
     /**
      * Sets the lock bounds for a valid touch.
      * Works as a circle's radius from the point in reference.
+     * Used when comparing locks ( Lock.equals() )
      *
      * The higher the the bounds, the less security.
      *
      * @param lockBounds - the "radius" of the circle being calculated.
      */
-    public static void setValidLockBounds(int lockBounds){VALID_TOUCH_BOUNDS = lockBounds;}
+    public static void setValidLockBounds(float lockBounds){
+        String setting =  Utils.getString(R.string.valid_lock_bounds);
+        Log.i(LOG_TAG, "SETTING VALID LOCK BOUNDS --- " + lockBounds);
+        Utils.saveToSharedPrefsString(setting, Float.toString(lockBounds));
+        VALID_TOUCH_BOUNDS = lockBounds;
+    }
 
-    public static float getValidLockBounds(){return VALID_TOUCH_BOUNDS;}
+    public static float getValidLockBounds(){
+        float vlb = Utils.getNumericalSetting(R.string.valid_lock_bounds);
+        Log.i(LOG_TAG, "RETRIEVING VALID LOCK BOUNDS --- " + vlb);
+        VALID_TOUCH_BOUNDS = (vlb == 0) ? VALID_TOUCH_BOUNDS : vlb;
+        return VALID_TOUCH_BOUNDS;
+    }
 
-    public static void setVibrateOnTouch(boolean vibrate){VIBRATE_ON_TOUCH = vibrate;}
+    public static void setVibrateOnTouch(boolean vibrate){
+        Log.i(LOG_TAG, "SETTING VIBRATE ON TOUCH --- " + vibrate);
+        if(vibrate) ((Vibrator)Utils.getContext().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
+        String setting = Utils.getString(R.string.vibrate_on_touch);
+        Utils.saveToSharedPrefsString(setting, Boolean.toString(vibrate));
+        VIBRATE_ON_TOUCH = vibrate;
+    }
 
-    public static boolean getVibrateOnTouch(){return VIBRATE_ON_TOUCH;}
+    public static boolean getVibrateOnTouch(){
+        VIBRATE_ON_TOUCH = Utils.getSetting(R.string.vibrate_on_touch);
+        Log.i(LOG_TAG, "RETRIEVING VIBRATE ON TOUCH --- " + VIBRATE_ON_TOUCH);
+        return VIBRATE_ON_TOUCH;
+    }
 
     /**
      * Setting number for home many seconds between each lock sequence action.
@@ -219,15 +242,29 @@ public abstract class CustomLockBaseListener implements View.OnTouchListener{
      * @param seconds - milliseconds for the buffer.
      */
     public static void setSecondsBetweenTaps(float seconds){
+        Log.i(LOG_TAG, "SETTING SECONDS BETWEEN TAPS --- " + seconds);
+        String setting = Utils.getString(R.string.seconds_between_taps);
+        Utils.saveToSharedPrefsString(setting, Float.toString(seconds));
         SECONDS_BETWEEN_TAPS = seconds;
     }
 
     public static float getSecondsBetweenTaps(){
+        float sbt = Utils.getNumericalSetting(R.string.seconds_between_taps);
+        SECONDS_BETWEEN_TAPS = (sbt == 0) ? SECONDS_BETWEEN_TAPS : sbt;
+        Log.i(LOG_TAG, "RETRIEVING SECONDS BETWEEN TAPS --- " + SECONDS_BETWEEN_TAPS);
         return SECONDS_BETWEEN_TAPS;
     }
 
 
     /*********************************** END OF SETTINGS ********************************************/
+
+    public static float getMinimumLockBounds() {
+        return MINIMUM_LOCK_BOUNDS;
+    }
+
+    public static float getMaximumLockBounds() {
+        return MAXIMUM_LOCK_BOUNDS;
+    }
 
 
     public void setContext(Context context){this.context = context;}

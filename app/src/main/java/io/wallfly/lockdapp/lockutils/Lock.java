@@ -9,10 +9,6 @@ import android.widget.TextView;
 
 import com.hmkcode.android.recyclerview.R;
 
-import java.util.Objects;
-
-import io.wallfly.lockdapp.Utils;
-
 
 /**
  * Created by JoshuaWilliams on 5/9/15.
@@ -273,8 +269,7 @@ public class Lock {
      */
     @Override
     public boolean equals(Object object){
-        if((object instanceof Lock))
-        {
+        if((object instanceof Lock)){
             Lock lock = ((Lock)object);
 
             if(this instanceof DragLock && lock instanceof DragLock){
@@ -285,6 +280,7 @@ public class Lock {
                         && endPointDist <= (CustomLockBaseListener.getValidLockBounds() + 100); //Added lock validity padding for drag since drag can be kind of tricky
             }
             else if(this instanceof TapLock && lock instanceof TapLock){
+                Log.i(LOG_TAG, "Get Distance ---- " + Utils.getDistance(lock.getPoint(), getPoint()) + " " + CustomLockBaseListener.getValidLockBounds());
                 return Utils.getDistance(lock.getPoint(), getPoint()) <= CustomLockBaseListener.getValidLockBounds();
             }
             else if(this instanceof HoldLock && lock instanceof HoldLock){

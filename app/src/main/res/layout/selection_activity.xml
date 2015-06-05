@@ -1,0 +1,23 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/parent"
+    tools:context="io.wallfly.lockdapp.activities.SelectionActivity">
+
+    <include layout="@layout/valid_touch_layout"
+        android:visibility="invisible"
+        android:id="@+id/valid_touch_layout" />
+
+    <include layout="@layout/about_layout"
+        android:visibility="invisible"
+        android:id="@+id/about_layout" />
+
+    <include layout="@layout/privacy_policy_layout"
+        android:visibility="invisible"
+        android:id="@+id/privacy_policy_layout"/>
+
+    <include layout="@layout/help_layout"
+        android:visibility="invisible"
+        android:id="@+id/help_layout"/>
+
+</RelativeLayout>

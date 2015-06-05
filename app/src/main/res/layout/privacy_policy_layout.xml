@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:id="@+id/parent"
+    >
+
+    <include layout="@layout/toolbar"
+        android:visibility="invisible"
+        android:id="@+id/include" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:elevation="5dp"
+        android:gravity="center_vertical"
+        android:layout_toRightOf="@+id/image"
+        android:layout_alignBottom="@+id/image"
+        android:layout_alignTop="@+id/image"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/image"
+        android:visibility="visible"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="3dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:elevation="5dp"
+        android:transitionName="@string/selection"
+        />
+
+
+        <android.support.v7.widget.CardView
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/card_view"
+            android:visibility="invisible"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            card_view:cardCornerRadius="5dp"
+            card_view:cardBackgroundColor="@color/semi_transparent"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="5dp"
+            android:elevation="5dp"
+            android:layout_below="@+id/include"
+            android:layout_marginRight="10dp">
+
+            <ScrollView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="10dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:id="@+id/privacy_policy_textview"
+                    android:text="@string/privacy_policy" />
+
+            </ScrollView>
+
+        </android.support.v7.widget.CardView>
+
+
+
+
+</RelativeLayout>

@@ -15,4 +15,11 @@
         <attr name="android:textSize" />
         <attr name="android:textColor" />
     </declare-styleable>
+
+        <declare-styleable name="PxBlurringView">
+            <attr name="blurRadius" format="integer" />
+            <attr name="downsampleFactor" format="integer" />
+            <attr name="overlayColor" format="color" />
+        </declare-styleable>
+
 </resources>

@@ -6,8 +6,7 @@ import android.widget.Toast;
 
 import com.hmkcode.android.recyclerview.R;
 
-import io.wallfly.lockdapp.CreateLockActivity;
-import io.wallfly.lockdapp.Utils;
+import io.wallfly.lockdapp.activities.CreateLockActivity;
 
 /**
  * Created by JoshuaWilliams on 4/30/15.
@@ -133,7 +132,7 @@ public class CustomLockListener extends CustomLockBaseListener {
      * @param lock - The lock being stored. Drag, Tap or Hold.
      */
     public void storeLock(Lock lock){
-        Utils.saveToSharedPrefsString(getContext().getString(R.string.package_name) + getSequenceNumber(), lock.toString());
+        Utils.saveToSharedPrefsString(Integer.toString(getSequenceNumber()), lock.toString());
         Log.i("CapturingLock", lock.toString());
         printLock();
         Toast.makeText(getContext(), lock.print(), Toast.LENGTH_SHORT).show();
@@ -160,9 +159,9 @@ public class CustomLockListener extends CustomLockBaseListener {
         int sequenceNumber = 0;
         while(!lockData.isEmpty()){
             sequenceNumber++;
-            lockData = Utils.getStringFromSharedPrefs(getContext().getString(R.string.package_name) + sequenceNumber);
+            lockData = Utils.getStringFromSharedPrefs(Integer.toString(sequenceNumber));
             Log.i("PrintingLockSequence", lockData);
-            lockData = Utils.getStringFromSharedPrefs(getContext().getString(R.string.package_name) + (sequenceNumber + 1));
+            lockData = Utils.getStringFromSharedPrefs(Integer.toString(sequenceNumber + 1));
         }
     }
 

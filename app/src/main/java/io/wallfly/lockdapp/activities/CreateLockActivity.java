@@ -1,7 +1,9 @@
-package io.wallfly.lockdapp;
+package io.wallfly.lockdapp.activities;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,6 +14,7 @@ import com.hmkcode.android.recyclerview.R;
 
 import java.util.ArrayList;
 
+import io.wallfly.lockdapp.lockutils.Utils;
 import io.wallfly.lockdapp.lockutils.CustomLockListener;
 import io.wallfly.lockdapp.lockutils.Lock;
 
@@ -102,6 +105,12 @@ public class CreateLockActivity extends ActionBarActivity  {
         }
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // TODO Auto-generated method stub
+        Log.i(LOG_TAG, "Key pressed while lock screen showing. Ignoring");
+        return false;
+    }
 
 
     @Override
@@ -138,6 +147,11 @@ public class CreateLockActivity extends ActionBarActivity  {
         this.lockConfirmed = lockConfirmed;
     }
 
-
+    @Override
+    public void onStart() {
+        super.onStart();
+        Utils.checkIfFirstOpen();
+        //initiateActivity();
+    }
 
 }

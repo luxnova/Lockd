@@ -1,0 +1,56 @@
+Index: app/src/main/java/io/wallfly/lockdapp/activities/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/io/wallfly/lockdapp/activities/MainActivity.java	(revision )
++++ app/src/main/java/io/wallfly/lockdapp/activities/MainActivity.java	(revision )
+@@ -8,7 +8,9 @@
+ import android.os.Bundle;
+ import android.support.v7.widget.LinearLayoutManager;
+ import android.support.v7.widget.Toolbar;
++import android.util.Log;
+ import android.view.LayoutInflater;
++import android.view.MotionEvent;
+ import android.view.View;
+ import android.view.WindowManager;
+ import android.widget.ImageView;
+@@ -25,7 +27,6 @@
+ import java.util.ArrayList;
+ import java.util.List;
+ 
+-import io.wallfly.lockdapp.adaptersandlisteners.TouchRevealListener;
+ import io.wallfly.lockdapp.models.SettingsSelection;
+ import io.wallfly.lockdapp.Utils;
+ import io.wallfly.lockdapp.libs.HomeKeyLocker;
+@@ -45,6 +46,7 @@
+     private int mActionBarSize;
+     private int mFlexibleSpaceImageHeight;
+     private int mToolbarColor;
++    boolean animated = false;
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+@@ -161,7 +163,20 @@
+         });
+ 
+         ImageView enableButton = (ImageView)findViewById(R.id.enable_lock_button);
+-        enableButton.setOnTouchListener(new TouchRevealListener(this, findViewById(R.id.disable_lock_button)));
++        enableButton.setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View view) {
++                Utils.animateRevealShow(view, 800);
++            }
++        });
++        enableButton.setOnLongClickListener(new View.OnLongClickListener() {
++            @Override
++            public boolean onLongClick(View view) {
++                Log.i("L-Click,", "L-Click");
++
++                return true;
++            }
++        });
+     }
+ 
+ 
+\ No newline at end of file

@@ -2,7 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hmkcode.android.recyclerview" >
 
+    <uses-sdk android:minSdkVersion="14" />
+
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!--android:launchMode="singleInstance" -->
+    <!-- android:stateNotNeeded="true" -->
 
     <application
         android:allowBackup="true"
@@ -10,19 +18,37 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="io.wallfly.lockdapp.MainActivity"
-            android:label="@string/app_name" >
-        </activity>
-        <activity
-            android:name="io.wallfly.lockdapp.CreateLockActivity"
-            android:label="@string/title_activity_create_lock" >
+            android:name="io.wallfly.lockdapp.activities.MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+        </activity>
+        <activity
+            android:name="io.wallfly.lockdapp.activities.CreateLockActivity"
+            android:label="@string/title_activity_create_lock" >
+        </activity>
+
+        <service
+            android:name="io.wallfly.lockdapp.servicesandreceivers.ScreenStatusMonitoringService"
+            android:enabled="true" >
+        </service>
+
+        <receiver android:name="io.wallfly.lockdapp.servicesandreceivers.ScreenStatusMonitoringReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name="io.wallfly.lockdapp.activities.SelectionActivity"
+            android:label="@string/title_activity_selection"
+            android:screenOrientation="portrait">
         </activity>
     </application>
-
 
 </manifest>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <include layout="@layout/toolbar"
+        android:visibility="invisible"
+        android:id="@+id/include" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:elevation="5dp"
+        android:gravity="center_vertical"
+        android:layout_toRightOf="@+id/image"
+        android:layout_alignBottom="@+id/image"
+        android:layout_alignTop="@+id/image"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/image"
+        android:visibility="visible"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="3dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:elevation="5dp"
+        android:transitionName="@string/selection"
+        />
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:id="@+id/scale_view"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/valid_touch_circle"
+        android:visibility="invisible" />
+
+
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:id="@+id/drag_handle"
+        android:src="@drawable/drag_handle"
+        android:layout_below="@+id/scale_view"
+        android:layout_toRightOf="@+id/scale_view"
+        android:layout_toEndOf="@+id/scale_view"
+        android:visibility="invisible" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/radius_tv"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="20dp"
+        android:text="30.5"
+        android:layout_below="@+id/include"
+        android:layout_marginTop="20dp"
+        android:visibility="invisible" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Radius:"
+        android:id="@+id/radius_header"
+        android:layout_toLeftOf="@+id/radius_tv"
+        android:layout_toStartOf="@+id/radius_tv"
+        android:layout_marginRight="23dp"
+        android:layout_marginEnd="23dp"
+        android:layout_alignBottom="@+id/radius_tv"
+        android:gravity="center"
+        android:layout_alignTop="@+id/radius_tv"
+        android:visibility="invisible" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Needed accuracy:"
+        android:id="@+id/accuracy_header"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="20dp"
+        android:visibility="invisible" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="High Accuracy"
+        android:id="@+id/accuracy_tv"
+        android:layout_alignBottom="@+id/accuracy_header"
+        android:layout_toRightOf="@+id/accuracy_header"
+        android:layout_toEndOf="@+id/accuracy_header"
+        android:layout_marginLeft="10dp"
+        android:visibility="invisible" />
+</RelativeLayout>
