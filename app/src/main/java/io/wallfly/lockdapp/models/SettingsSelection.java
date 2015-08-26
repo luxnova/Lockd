@@ -12,6 +12,17 @@ import android.os.Parcelable;
  */
 public class SettingsSelection implements Parcelable {
 
+    public static final String CLOCK = "Clock";
+    public static final String WEATHER = "Weather";
+    public static final String VIBRATE_ON_TOUCH = "Vibrate on touch";
+    public static final String SECONDS_BETWEEN_TAPS = "Seconds between taps";
+    public static final String VALID_TOUCH_RADIUS = "Valid touch radius";
+    public static final String RATE = "Rate";
+    public static final String ABOUT = "About";
+    public static final String PRIVACY_POLICY = "Privacy policy";
+    public static final String HELP = "Help";
+    public static final String BACKUP_PASSWORD = "Change backup password";
+
     private String title;
     private int imageResource;
     private int position;

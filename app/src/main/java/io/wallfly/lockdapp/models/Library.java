@@ -1,5 +1,7 @@
 package io.wallfly.lockdapp.models;
 
+import java.util.Iterator;
+
 /**
  * Created by JoshuaWilliams on 6/4/15.
  *
@@ -51,4 +53,5 @@ public class Library {
     public void setLink(String link) {
         this.link = link;
     }
+
 }

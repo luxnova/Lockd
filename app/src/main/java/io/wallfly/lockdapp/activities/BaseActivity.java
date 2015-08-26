@@ -1,5 +1,6 @@
 package io.wallfly.lockdapp.activities;
 
+import android.app.Activity;
 import android.content.res.TypedArray;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -8,11 +9,8 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
 import com.hmkcode.android.recyclerview.R;
-
 import java.util.ArrayList;
-
 import io.wallfly.lockdapp.adaptersandlisteners.SimpleHeaderRecyclerAdapter;
 
 public abstract class BaseActivity extends AppCompatActivity {

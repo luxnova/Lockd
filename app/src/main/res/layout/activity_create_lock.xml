@@ -1,17 +1,107 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/lockLayout"
     tools:context="io.wallfly.lockdapp.activities.CreateLockActivity">
 
-    <ImageButton
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:id="@+id/imageButton"
+    <ImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:id="@+id/timer_border"
+        android:src="@drawable/dark_gray_circle"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:layout_width="65dp"
+        android:layout_height="0.5dp"
+        android:id="@+id/view"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="60dp"
         android:layout_alignParentBottom="true"
-        android:elevation="5dp"
         android:layout_alignParentEnd="true"
-        android:onClick="saveLockOnClick"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp" />
+        android:layout_alignParentRight="true"
+        android:padding="20dp"
+        android:transitionName="@string/float_action_button"
+        android:background="@drawable/ripple_teal_circle"
+        android:src="@drawable/pencil_white_icon"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/timer_text_view"
+        android:layout_centerVertical="true"
+        android:layout_alignLeft="@+id/timer_border"
+        android:layout_alignStart="@+id/timer_border"
+        android:layout_alignRight="@+id/timer_border"
+        android:layout_alignEnd="@+id/timer_border"
+        android:transitionName="confirmLockView"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textColor="#ff313131"
+        android:visibility="invisible" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/operation_tv"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="88dp"
+        android:textSize="22sp"
+        android:visibility="visible" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Start"
+        android:id="@+id/drag_start_tv"
+        android:layout_below="@+id/operation_tv"
+        android:layout_toLeftOf="@+id/operation_tv"
+        android:layout_toStartOf="@+id/operation_tv"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/green"
+        android:visibility="gone" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="End"
+        android:id="@+id/drag_end_tv"
+        android:layout_below="@+id/operation_tv"
+        android:layout_toRightOf="@+id/operation_tv"
+        android:layout_toEndOf="@+id/operation_tv"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/red"
+        android:visibility="gone" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/hold_seconds_tv"
+        android:layout_marginTop="22dp"
+        android:visibility="visible"
+        android:layout_below="@+id/operation_tv"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/sequence_num_tv"
+        android:layout_alignBottom="@+id/operation_tv"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="31dp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:id="@+id/lockLayout"/>
 </RelativeLayout>

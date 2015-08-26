@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="lockd_status_bar">#FF1F4E43</color>
+    <color name="lockd_primary">#FF1F5D52</color>
+    <color name="image_header_bg">#CEBFBFBF</color>
+    <color name="black">#000000</color>
+    <color name="white">#ffffff</color>
+    <color name="ripple_red">#84D60400</color>
+    <color name="red">#FFD9280C</color>
+    <color name="teal">#07B789</color>
+    <color name="blue">#0667C9</color>
+    <color name="green">#FF009909</color>
+    <color name="yellow">#FFB57B00</color>
+    <color name="brown">#FFA96714</color>
+    <color name="cyan">#0496B8</color>
+    <color name="dark_cyan">#0487A5</color>
+    <color name="light_green">#740C8400</color>
+    <color name="light_gray">#8D39383B</color>
+    <color name="light_red">#9FDA000E</color>
+    <color name="light_blue">#9E000BFF</color>
+    <color name="light_yellow">#94BCB200</color>
+    <color name="light_brown">#B6A96714</color>
+    <color name="light_cyan">#880067B0</color>
+    <color name="dark_gray">#92000000</color>
+    <color name="dark_teal">#07A779</color>
+    <color name="dark_blue">#FF0645A8</color>
+    <color name="toolbar_gray">#DF000000</color>
+    <color name="semi_transparent">#FF464646</color>
+    <color name="theme_background_status_color">#FF2E2E2E</color>
+    <color name="darker_gray">#FF252525</color>
+    <color name="transparent">#00000000</color>
+    <color name="lockscreen_transparent">#7E000000</color>
+</resources>

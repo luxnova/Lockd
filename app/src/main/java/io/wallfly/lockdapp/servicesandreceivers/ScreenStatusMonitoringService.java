@@ -27,6 +27,7 @@ public class ScreenStatusMonitoringService extends Service {
             filter.addAction(Intent.ACTION_SCREEN_OFF);
             mReceiver = new ScreenStatusMonitoringReceiver();
             registerReceiver(mReceiver, filter);
+            Log.i("SERVICE", "Service starting ---- ");
 
         }
 
@@ -42,12 +43,9 @@ public class ScreenStatusMonitoringService extends Service {
 		
 		@Override
 		public void onDestroy() {
-
             Log.i("ScreenOnOff", "Service  destroy");
 			if(mReceiver!=null){
                 unregisterReceiver(mReceiver);
             }
-
-
 		}
 }

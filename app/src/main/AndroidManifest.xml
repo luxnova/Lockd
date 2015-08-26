@@ -8,10 +8,30 @@
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <!--android:launchMode="singleInstance" -->
+    <permission
+        android:name="in.android.gcm.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
+
+    <!-- android:launchMode="singleInstance" -->
     <!-- android:stateNotNeeded="true" -->
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -20,13 +40,7 @@
         <activity
             android:name="io.wallfly.lockdapp.activities.MainActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="io.wallfly.lockdapp.activities.CreateLockActivity"
@@ -41,13 +55,75 @@
         <receiver android:name="io.wallfly.lockdapp.servicesandreceivers.ScreenStatusMonitoringReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name="io.wallfly.lockdapp.servicesandreceivers.NotificationService"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
 
         <activity
             android:name="io.wallfly.lockdapp.activities.SelectionActivity"
             android:label="@string/title_activity_selection"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name="io.wallfly.lockdapp.activities.LockScreenActivity"
+            android:excludeFromRecents="true"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Wallpaper" >
+        </activity>
+        <activity
+            android:name="io.wallfly.lockdapp.activities.LauncherActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="bcf8684f63904620069aaf1182c4a76f3fcb23ae" />
+
+        <activity
+            android:name="io.wallfly.lockdapp.activities.ConfirmLockActivity"
+            android:label="@string/title_activity_confirm_lock"
+            android:parentActivityName="io.wallfly.lockdapp.activities.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="io.wallfly.lockdapp.activities.MainActivity" />
+        </activity>
+
+        <receiver
+            android:name="io.wallfly.lockdapp.lockutils.AdminReceiver"
+            android:permission="android.permission.BIND_DEVICE_ADMIN" >
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin_xml" />
+        </receiver>
+
+        <activity
+            android:name="io.wallfly.lockdapp.activities.ViewText"
+            android:label="@string/title_activity_view_text" >
+        </activity>
+        <activity
+            android:name="io.wallfly.lockdapp.activities.EncryptedPhoneActivity"
+            android:label="@string/title_activity_encrypted_phone" >
         </activity>
     </application>
 

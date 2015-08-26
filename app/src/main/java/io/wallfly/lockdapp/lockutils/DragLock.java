@@ -9,6 +9,8 @@ import java.util.Arrays;
  * Created by JoshuaWilliams on 5/9/15.
  *
  * Creation of a Drag Lock.
+ *
+ * @version 1.0
  */
 public class DragLock extends Lock {
     float[] endPoint;

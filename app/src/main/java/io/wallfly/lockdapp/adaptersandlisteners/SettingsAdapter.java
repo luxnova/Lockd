@@ -9,12 +9,11 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
-
 import com.hmkcode.android.recyclerview.R;
 import java.util.ArrayList;
 import java.util.List;
-
-import io.wallfly.lockdapp.lockutils.CustomLockBaseListener;
+import io.wallfly.lockdapp.lockutils.AbstractLockdBaseListener;
+import io.wallfly.lockdapp.lockutils.LockUtils;
 import io.wallfly.lockdapp.lockutils.Utils;
 import io.wallfly.lockdapp.models.SettingsSelection;
 
@@ -26,13 +25,11 @@ public class SettingsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private List<SettingsSelection> settingsSelections = new ArrayList<>();
     private SettingsOnClickListener settingsOnClickListener;
     private View mHeaderView;
-    private Activity activity;
 
     public SettingsAdapter(Activity activity, List<SettingsSelection> itemsData, View headerView) {
         this.settingsSelections = itemsData;
         this.mHeaderView = headerView;
         settingsOnClickListener = new SettingsOnClickListener(activity);
-        this.activity = activity;
     }
 
     // Create new views (invoked by layout manager)
@@ -57,7 +54,6 @@ public class SettingsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return (position == 0) ? VIEW_TYPE_HEADER : VIEW_TYPE_ITEM;
     }
 
-
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
@@ -76,9 +72,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             settingsViewHolder.switchView.setTag(settingSelection);
             settingsViewHolder.layout.setTag(settingSelection);
-
             setUpView(settingsViewHolder, settingSelection);
-
         }
     }
 
@@ -89,7 +83,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 settingsViewHolder.switchView.setVisibility(View.VISIBLE);
                 settingsViewHolder.subTextView.setVisibility(View.VISIBLE);
 
-                if(Utils.getSetting(R.string.twenty_four_hour_clock)){
+                if(LockUtils.getSetting(R.string.twenty_four_hour_clock)){
                     settingsViewHolder.subTextView.setText(Utils.getString(R.string.display_24_clock_text));
                     settingsViewHolder.switchView.setChecked(true);
                 }
@@ -97,7 +91,6 @@ public class SettingsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     settingsViewHolder.subTextView.setText(Utils.getString(R.string.display_12_hour_clock_text));
                     settingsViewHolder.switchView.setChecked(false);
                 }
-
                 break;
 
             case 2:
@@ -105,7 +98,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 settingsViewHolder.switchView.setVisibility(View.VISIBLE);
                 settingsViewHolder.subTextView.setVisibility(View.VISIBLE);
 
-                if(Utils.getSetting(R.string.weather_showing)){
+                if(LockUtils.getSetting(R.string.weather_showing)){
                     settingsViewHolder.subTextView.setText(Utils.getString(R.string.display_weather_text));
                     settingsViewHolder.switchView.setChecked(true);
                 }
@@ -118,48 +111,46 @@ public class SettingsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             case 3:
                 Utils.setViewBackground(R.drawable.ripple_red, settingsViewHolder.layout);
                 settingsViewHolder.switchView.setVisibility(View.VISIBLE);
-                settingsViewHolder.switchView.setChecked(CustomLockBaseListener.getVibrateOnTouch());
+                settingsViewHolder.switchView.setChecked(AbstractLockdBaseListener.getVibrateOnTouch());
                 settingsViewHolder.subTextView.setVisibility(View.GONE);
                 settingsViewHolder.mainTextView.setPadding(0, 5, 0, 0);
-
                 break;
 
             case 4:
                 Utils.setViewBackground(R.drawable.ripple_brown, settingsViewHolder.layout);
                 settingsViewHolder.switchView.setVisibility(View.GONE);
                 settingsViewHolder.subTextView.setVisibility(View.VISIBLE);
-                if(CustomLockBaseListener.getSecondsBetweenTaps() > 1999){
-                    settingsViewHolder.subTextView.setText(Utils.getFirstCharacter(CustomLockBaseListener.getSecondsBetweenTaps())
+                if(AbstractLockdBaseListener.getSecondsBetweenTaps() > 1999){
+                    settingsViewHolder.subTextView.setText(Utils.getFirstCharacter(AbstractLockdBaseListener.getSecondsBetweenTaps())
                             + " seconds");
-                }
-                else{
-                    settingsViewHolder.subTextView.setText(Utils.getFirstCharacter(CustomLockBaseListener.getSecondsBetweenTaps())
+                } else {
+                    settingsViewHolder.subTextView.setText(Utils.getFirstCharacter(AbstractLockdBaseListener.getSecondsBetweenTaps())
                             + " second");
                 }
                 break;
 
             case 5:
                 setDefaultWithBackground(settingsViewHolder, R.drawable.ripple_blue);
-
                 break;
 
             case 6:
                 setDefaultWithBackground(settingsViewHolder, R.drawable.ripple_yellow);
-
                 break;
 
             case 7:
                 setDefaultWithBackground(settingsViewHolder, R.drawable.ripple_teal);
-
                 break;
 
             case 8:
                 setDefaultWithBackground(settingsViewHolder, R.drawable.ripple_black);
-
                 break;
+
             case 9:
                 setDefaultWithBackground(settingsViewHolder, R.drawable.ripple_cyan);
+                break;
 
+            case 10:
+                setDefaultWithBackground(settingsViewHolder, R.drawable.ripple_blue);
                 break;
         }
     }

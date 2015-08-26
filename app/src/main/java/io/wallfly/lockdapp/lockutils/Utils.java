@@ -3,31 +3,39 @@ package io.wallfly.lockdapp.lockutils;
 import android.animation.Animator;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewAnimationUtils;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.hmkcode.android.recyclerview.R;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
@@ -37,7 +45,14 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Locale;
+
+
 
 /**
  * Created by JoshuaWilliams on 4/30/15.
@@ -49,6 +64,11 @@ public class Utils {
     private static final String LOG_TAG = "Utils";
     private static ImageLoader imageLoader;
     private static Typeface roboto;
+    private static Typeface robotoThin;
+    private static GoogleApiClient locationclient;
+    private static LocationRequest locationrequest = new LocationRequest();
+
+    static String apiKey = "AIzaSyAiNvQdhFw2c_5JgyuQRUdNeiBBrCHR7gY";
 
     /**
      * Retrieves a string from the strings.xml.
@@ -68,7 +88,8 @@ public class Utils {
      * @param content - the string being saved.
      */
     public static void saveToSharedPrefsString(String code, String content) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        Log.i(LOG_TAG, "Saving -- Code -- " + code + " || Content -- " + content);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(getString(R.string.package_name) + code, content);
         editor.apply();
@@ -93,6 +114,7 @@ public class Utils {
      */
     public static String getStringFromSharedPrefs(String code) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        Log.i(LOG_TAG, "Retrieving From SharedPrefs => ----- Key --- " + code + " || Value --- " + preferences.getString(getString(R.string.package_name) + code, ""));
         return preferences.getString(getString(R.string.package_name) + code, "");
     }
 
@@ -119,28 +141,6 @@ public class Utils {
         return (float) (Math.round(interestedInZeroDPs) / multipicationFactor);
     }
 
-    /**
-     * Returns the appropriate TextView with modifications based off of the type.
-     * Used to get the visual for locks.
-     *
-     * @param type - type of lock
-     * @param xCoord - x Coordinate of lock.
-     * @param yCoord- y Coordinate of lock.
-     * @return - the view that represents the lock's position on the screen.
-     */
-    public static TextView getPointView(String type, float xCoord, float yCoord){
-        TextView pointView = new TextView(context);
-        pointView.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        pointView.setGravity(Gravity.CENTER);
-        pointView.setText(type);
-        pointView.setTextSize(50);
-        pointView.setX(xCoord - 130); //Offset for the view to be in the center of the touch
-        pointView.setY(yCoord - 140); //Offset for the view to be in the center of the touch
-
-        return pointView;
-    }
 
     /**
      * Sets the passed views to the drawable resource passed.
@@ -163,32 +163,6 @@ public class Utils {
     }
 
     /**
-     * Retrieves a list of the lock combinations in order.
-     *
-     * @return - list of lock combination.
-     */
-    public static ArrayList<Lock> getLockCombo() {
-        String lockData = "0";
-        int sequenceNumber = 0;
-
-
-        ArrayList<Lock> lockCombo = new ArrayList<>();
-        while(!lockData.isEmpty()){
-            sequenceNumber++;
-            lockData = Utils.getStringFromSharedPrefs(Integer.toString(sequenceNumber));
-            Lock lock = getLock(lockData);
-            if(lock != null){
-                lockCombo.add(getLock(lockData));
-            }
-            else{
-                break;
-            }
-            lockData = Utils.getStringFromSharedPrefs(Integer.toString(sequenceNumber+1));
-        }
-        return lockCombo;
-    }
-
-    /**
      * Gets the distance of one point from another.
      *
      * @param point1 - point being measured.
@@ -199,25 +173,6 @@ public class Utils {
         return Math.sqrt(Math.pow(point1[0] - point2[0], 2) + Math.pow(point1[1] - point2[1], 2));
     }
 
-    /**
-     * Parses the string lock data into a Lock object of the three types.
-     *
-     * @param lockData - The string containing the essential information for a lock.
-     * @return - the lock object from the data
-     */
-    public static Lock getLock(String lockData) {
-        return Lock.parseLock(lockData);
-    }
-
-    /**
-     * Returns the appropriate lock from the user's saved lock combo.
-     *
-     * @param sequenceNumber - The lock's sequence number.
-     * @return - the appropriate lock.
-     */
-    public static Lock getLockFromSequence(int sequenceNumber) {
-        return Lock.parseLock(getStringFromSharedPrefs(Integer.toString(sequenceNumber)));
-    }
 
     /**
      * Gets display image options from the Universal Imageloader.
@@ -318,57 +273,6 @@ public class Utils {
 
 
     /**
-     * Get the user's setting from the shared prefs.
-     *
-     * @return - boolean value for if the user's setting is active or not.
-     */
-    public static boolean getSetting(int stringResource){
-        String setting = getStringFromSharedPrefs(getString(stringResource));
-        Log.i(LOG_TAG, "Retrieving setting => " + getString(stringResource) + " Value - " + setting);
-        return Boolean.parseBoolean(setting);
-    }
-
-
-    /**
-     * Get the user's setting from the shared prefs. Only if the value is numerical
-     *
-     * @return - the numerical value of the setting.
-     */
-    public static float getNumericalSetting(int stringResource){
-        String setting = getString(stringResource);
-        Log.i(LOG_TAG, "Numerical Setting ---- " + setting + " Value ---- " + getStringFromSharedPrefs(setting) );
-        return (setting.isEmpty()) ? 0 : Float.parseFloat(getStringFromSharedPrefs(setting));
-    }
-
-    /**
-     * Checks if it's the user's first time opening the app. If it is then it initializes the settings.
-     */
-    public static boolean checkIfFirstOpen() {
-        String initialOpenSetting = getString(R.string.initial_open);
-
-        if(Utils.getStringFromSharedPrefs(initialOpenSetting).isEmpty()){
-            Log.i(LOG_TAG, "User's first time opening the app. Initalizing settings.");
-            String militaryClockSetting = getString(R.string.twenty_four_hour_clock);
-            String weatherDisplaySetting = getString(R.string.weather_showing);
-            String secondsBetweenTapsSetting =  getString(R.string.seconds_between_taps);
-            String vibrateOnTouch = getString(R.string.vibrate_on_touch);
-            String validTouchBounds = getString(R.string.valid_lock_bounds);
-
-            saveToSharedPrefsString(militaryClockSetting, "false");
-            saveToSharedPrefsString(weatherDisplaySetting, "false");
-            saveToSharedPrefsString(initialOpenSetting, "false");
-            saveToSharedPrefsString(secondsBetweenTapsSetting, Float.toString(1000));
-            saveToSharedPrefsString(vibrateOnTouch, Boolean.toString(true));
-            saveToSharedPrefsString(validTouchBounds, Float.toString(150));
-
-            saveToSharedPrefsString(initialOpenSetting, "false");
-            return true;
-        }
-        Log.i(LOG_TAG, "Settings already initialized.");
-        return false;
-    }
-
-    /**
      * Sets the color of the status bar
      *
      * @param activity - The activity at which the status bar will be set.
@@ -379,7 +283,11 @@ public class Utils {
         Window window = activity.getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.setStatusBarColor(activity.getResources().getColor(color));
+        try {
+            window.setStatusBarColor(activity.getResources().getColor(color));
+        }catch (RuntimeException re){
+            window.setStatusBarColor(color);
+        }
     }
 
 
@@ -451,6 +359,7 @@ public class Utils {
      */
     public static void loadTypeFaces(){
         roboto = getTypeface(getString(R.string.roboto_font));
+        robotoThin = getTypeface(getString(R.string.roboto_thin_font));
     }
 
 
@@ -479,6 +388,11 @@ public class Utils {
     }
 
 
+    /**
+     * Blurs the bitamp to a small degree.
+     *
+     * @param photo - the bitmap to be blurred
+     */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     public static void blurImage(Bitmap photo){
         RenderScript rs = RenderScript.create(getContext());
@@ -487,11 +401,44 @@ public class Utils {
         ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create( rs, Element.U8_4(rs) );
         script.setRadius( 5 /* e.g. 3.f */ );
         script.setInput( input );
-        script.forEach( output );
-        output.copyTo( photo );
+        script.forEach(output);
+        output.copyTo(photo);
     }
 
+    /**
+     * Retrieves a drawable resource from another package.
+     *
+     * @param packageName - the name of the package.
+     * @param resourceID - the id.
+     * @return - the drawable from the package.
+     */
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static Drawable getDrawableFromApp(String packageName, int resourceID){
 
+        try {
+            if(Build.VERSION.SDK_INT >= 21){
+                return Utils.getContext().createPackageContext(packageName, 0).getDrawable(resourceID);
+            }
+            else{
+                return Utils.getContext().createPackageContext(packageName, 0).getResources().getDrawable(resourceID);
+            }
+        }
+        catch (PackageManager.NameNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Converts drawable to bitmap.
+     *
+     * @param drawable - the drawable to be turned into a bitmap.
+     * @param widthPixels - the width of the bitmap.
+     * @param heightPixels - the height of the bitmap.
+     * @return - the new bitmap version of the drawable.
+     */
     public static Bitmap convertToBitmap(Drawable drawable, int widthPixels, int heightPixels) {
         Bitmap mutableBitmap = Bitmap.createBitmap(widthPixels, heightPixels, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(mutableBitmap);
@@ -500,4 +447,141 @@ public class Utils {
         return mutableBitmap;
     }
 
+
+    /**
+     * Gets the user's wallpaper.
+     *
+     * @return - the user's wallpaper drawable.
+     */
+    public static Drawable getWallpaper() {
+        WallpaperManager wallpaperManager = WallpaperManager.getInstance(getContext());
+        return wallpaperManager.getDrawable();
+    }
+
+    public static Typeface getRobotoThin() {
+        return robotoThin;
+    }
+
+    /**
+     * Stores the location inside the user's shared prefs.
+     *
+     */
+    public static void storeLocation(){
+        locationclient = new GoogleApiClient.Builder(getContext())
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(connectionCallbacks)
+                .build();
+
+        if(!locationclient.isConnected()) {
+            locationclient.connect();
+        }
+
+    }
+
+
+    /**
+     * Retrieves the city name from lattitude and longitude coordinates.
+     *
+     * @param lat - lattitude of the location
+     * @param lng - longitude of the location
+     * @return - the city name.
+     */
+    public static String getCityName(double lat, double lng){
+        Geocoder gcd = new Geocoder(context, Locale.getDefault());
+        List<Address> addresses = null;
+        try {
+            addresses = gcd.getFromLocation(lat, lng, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return (addresses != null) ? addresses.get(0).getLocality() : null;
+    }
+
+
+
+    private static com.google.android.gms.location.LocationListener locationListener = new com.google.android.gms.location.LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            Log.i(LOG_TAG, "Location changing...");
+        }
+    };
+
+    private static GoogleApiClient.ConnectionCallbacks connectionCallbacks = new GoogleApiClient.ConnectionCallbacks() {
+
+        @Override
+        public void onConnected(Bundle bundle) {
+            Log.i(LOG_TAG, "Location client connected");
+            locationrequest = LocationRequest.create();
+            locationrequest.setInterval(30 * 1000);
+            locationrequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+            LocationServices.FusedLocationApi.requestLocationUpdates(locationclient,
+                    locationrequest, locationListener);
+
+
+
+            if(LocationServices.FusedLocationApi.getLastLocation(locationclient) != null){
+                double lat = LocationServices.FusedLocationApi.getLastLocation(locationclient).getLatitude();
+                double lng = LocationServices.FusedLocationApi.getLastLocation(locationclient).getLongitude();
+
+                String cityName = Utils.getCityName(lat, lng);
+                saveToSharedPrefsString(getString(R.string.city_name), cityName);
+
+                locationclient.disconnect();
+            }
+        }
+
+
+        @Override
+        public void onConnectionSuspended(int i) {
+
+        }
+    };
+
+    /**
+     * Vibrates phone for 800 ms
+     */
+    public static void vibrate() {
+        ((Vibrator)getContext().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(800);
+    }
+
+    /**
+     * Checks if use currently has a lock set.
+     *
+     * @return - whether the lock is set or not.
+     */
+    public static boolean isDeviceSecured() {
+        Class<?> clazz = null;
+        try {
+            clazz = Class.forName("com.android.internal.widget.LockPatternUtils");
+            Constructor<?> constructor = clazz.getConstructor(Context.class);
+            constructor.setAccessible(true);
+            Object utils = constructor.newInstance(context);
+            Method method = clazz.getMethod("isSecure");
+            return  (Boolean)method.invoke(utils);
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the user's Gps is enabeld.
+     *
+     * @return - whether the user's GPS is enabled or not.
+     */
+    public static boolean isGpsEnabled(){
+        final LocationManager manager = (LocationManager) getContext().getSystemService( Context.LOCATION_SERVICE );
+        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER) ;
+    }
 }

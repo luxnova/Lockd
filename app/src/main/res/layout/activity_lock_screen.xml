@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/background">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/lockscreen_transparent"/>
+
+    <TextClock
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/timer_clock_tv"
+        android:gravity="center"
+        android:layout_marginTop="115dp"
+        android:format12Hour="h:mm"
+        android:format24Hour="kk:mm:ss"
+        android:textSize="80sp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextClock
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/meridiem_tv"
+        android:format12Hour="aa"
+        android:layout_alignBottom="@+id/timer_clock_tv"
+        android:layout_toRightOf="@+id/timer_clock_tv"
+        android:layout_toEndOf="@+id/timer_clock_tv"
+        android:layout_alignTop="@+id/timer_clock_tv"
+        android:gravity="center|top"
+        android:paddingTop="15dp"
+        android:layout_marginLeft="3dp" />
+
+    <TextClock
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/date_tv"
+        android:format12Hour="MMM dd, yyyy"
+        android:format24Hour="MMM dd, yyyy"
+        android:layout_below="@+id/timer_clock_tv"
+        android:gravity="center"
+        android:layout_marginTop="30dp" />
+
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Protected by Lockd"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="20dp"
+            android:id="@+id/protected_tv" />
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/lockd_logo"
+            android:layout_alignTop="@+id/protected_tv"
+            android:layout_toRightOf="@+id/protected_tv"
+            android:layout_toEndOf="@+id/protected_tv"
+            android:layout_alignBottom="@+id/protected_tv" />
+
+
+
+    <com.pwittchen.weathericonview.library.WeatherIconView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/weather_icon"
+        custom:weatherIconColor="@android:color/white"
+        custom:weatherIconSize="25"
+        android:gravity="right"
+        android:layout_above="@+id/temp_tv"
+        android:layout_alignStart="@+id/temp_tv"
+        android:layout_alignEnd="@+id/temp_tv" />
+
+    <Space
+        android:layout_width="20dp"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/space" />
+
+    <TextView
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/temp_tv"
+        android:layout_alignTop="@+id/lockd_logo"
+        android:layout_toLeftOf="@+id/space"
+        android:layout_toStartOf="@+id/space"
+        android:gravity="right" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Incorrect attempt"
+        android:id="@+id/incorrect_attempt_tv"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible"
+        android:textColor="@color/red"
+        android:background="#7858565a"
+        android:gravity="center" />
+
+    <LinearLayout
+        android:id="@+id/linear_layout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/incorrect_attempt_tv"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/weather_icon"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginBottom="70dp"></LinearLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/lock_field"/>
+</RelativeLayout>

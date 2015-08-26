@@ -36,7 +36,9 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/title">
+        android:layout_below="@+id/title"
+        android:id="@+id/scrollView"
+        android:visibility="invisible">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -191,10 +193,9 @@
                         android:paddingRight="20dp" />
 
                     <ImageView
-                        android:id="@+id/help"
+                        android:id="@+id/valid_touch_help_pic"
                         android:layout_width="match_parent"
                         android:layout_height="350dp"
-                        android:src="@drawable/help_valid_touch_picture"
                         android:layout_below="@id/touch_text"
                         android:layout_alignLeft="@+id/touch_point_icon"
                         android:layout_alignStart="@+id/touch_point_icon"

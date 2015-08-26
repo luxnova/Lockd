@@ -21,15 +21,13 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import com.hmkcode.android.recyclerview.R;
-
-
 import java.util.ArrayList;
 import java.util.List;
-
 import io.wallfly.lockdapp.adaptersandlisteners.AboutRecyclerAdapter;
-import io.wallfly.lockdapp.lockutils.CustomLockBaseListener;
+import io.wallfly.lockdapp.lockutils.AbstractLockdBaseListener;
 import io.wallfly.lockdapp.lockutils.Utils;
 import io.wallfly.lockdapp.models.Library;
 import io.wallfly.lockdapp.models.SettingsSelection;
@@ -37,7 +35,7 @@ import io.wallfly.lockdapp.models.SettingsSelection;
 public class SelectionActivity extends AppCompatActivity implements View.OnTouchListener {
 
     private static final String LOG_TAG = "SelectionActivity";
-    private static final int ANIMATIONS_DURATION = 400; //All animations have the same length
+    private static final int ANIMATIONS_DURATION = 200; //All animations have the same length
     private int milliSeconds;
     private Toolbar toolbar;
     private TextView titleTV, radiusTV, accuracyTV, accuracyHeader, radiusHeader;
@@ -49,6 +47,7 @@ public class SelectionActivity extends AppCompatActivity implements View.OnTouch
     private ImageView image;
     private RecyclerView recyclerView;
     private CardView cardView;
+    private ScrollView scrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,8 +87,8 @@ public class SelectionActivity extends AppCompatActivity implements View.OnTouch
 
             radiusHeader.setTypeface(Utils.getRoboto());
             radiusTV.setTypeface(Utils.getRoboto());
-            radiusTV.setText(convertBoundsToString(CustomLockBaseListener.getValidLockBounds()));
-            double accuracy = convertBoundsToDouble(CustomLockBaseListener.getValidLockBounds());
+            radiusTV.setText(convertBoundsToString(AbstractLockdBaseListener.getValidLockBounds()));
+            double accuracy = convertBoundsToDouble(AbstractLockdBaseListener.getValidLockBounds());
 
             accuracyHeader.setTypeface(Utils.getRoboto());
             accuracyTV.setTypeface(Utils.getRoboto());
@@ -97,7 +96,7 @@ public class SelectionActivity extends AppCompatActivity implements View.OnTouch
             accuracyHeader.bringToFront();
             setAccuracyTV(accuracy);
 
-            float scale = CustomLockBaseListener.getValidLockBounds() / 220;
+            float scale = AbstractLockdBaseListener.getValidLockBounds() / 220;
             scaleView.setScaleX(scale);
             scaleView.setScaleY(scale);
 
@@ -138,25 +137,38 @@ public class SelectionActivity extends AppCompatActivity implements View.OnTouch
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
             List<Library> libraries = new ArrayList<>();
-            libraries.add(new Library("Android-ObservableScrollView", "Soichiro Kashima",
+            libraries.add(new Library("Android-ObservableScrollView",
+                    "Soichiro Kashima",
                     "Android library to observe scroll events on scrollable views." +
                     "It's easy to interact with the Toolbar introduced in Android 5.0 Lollipop and may be helpful to implement look and feel of Material Design apps.",
                     "https://github.com/ksoichiro/Android-ObservableScrollView"));
-            libraries.add(new Library("NineOldAndroids", "Jake Wharton",
+            libraries.add(new Library("NineOldAndroids",
+                    "Jake Wharton",
                     "Android library for using the Honeycomb (Android 3.0) animation API on all versions of the platform back to 1.0!\n" +
                             "\n" + "Note: LayoutTransition is present and it is not be possible to implement prior to Android 3.0.",
                     "https://github.com/JakeWharton/NineOldAndroids"));
-            libraries.add(new Library("DiscreteSeekBar", "Ander Web", "DiscreteSeekbar is my poor attempt to develop an android implementation of the Discrete Slider component from the Google Material Design Guidelines.",
+            libraries.add(new Library("DiscreteSeekBar",
+                    "Ander Web",
+                    "DiscreteSeekbar is my poor attempt to develop an android implementation of the Discrete Slider component from the Google Material Design Guidelines.",
                     "https://github.com/AnderWeb/discreteSeekBar"));
-            libraries.add(new Library("UIL", "Sergey Tarasevich",
+            libraries.add(new Library("UIL",
+                    "Sergey Tarasevich",
                     "Android library #1 on GitHub. UIL aims to provide a powerful, flexible and highly customizable instrument for image loading, caching and displaying. It provides a lot of configuration options and good control over the image loading and caching process.",
                     "https://github.com/nostra13/Android-Universal-Image-Loader"));
+            libraries.add(new Library("HomeKeyLocker",
+                    "Shaobin",
+                    "Utility to disable HOME KEY in Android Activity.",
+                    "https://github.com/shaobin0604/Android-HomeKey-Locker"));
+            libraries.add(new Library("WeatherIconView",
+                    "Piotr Wittchen",
+                    "Android library providing custom view for displaying weather icon. " +
+                            "Weather Icon View is based on Weather Icons project by Erik Flowers.",
+                    "https://github.com/pwittchen/WeatherIconView"));
 
 
             AboutRecyclerAdapter aboutRecyclerAdapter = new AboutRecyclerAdapter(this, libraries);
             recyclerView.setAdapter(aboutRecyclerAdapter);
-        }
-        else if(selection.getImageResource() == R.drawable.privacy_policy_icon){
+        } else if(selection.getImageResource() == R.drawable.privacy_policy_icon){
             helpLayout.setVisibility(View.GONE);
             validTouchLayout.setVisibility(View.GONE);
             aboutLayout.setVisibility(View.GONE);
@@ -170,8 +182,7 @@ public class SelectionActivity extends AppCompatActivity implements View.OnTouch
             TextView textView = (TextView) privacyPolicyLayout.findViewById(R.id.privacy_policy_textview);
             textView.setText(Html.fromHtml(getString(R.string.privacy_policy)));
             textView.setTypeface(Utils.getRoboto());
-        }
-        else if(selection.getImageResource() == R.drawable.help_icon){
+        } else if(selection.getImageResource() == R.drawable.help_icon){
             helpLayout.setVisibility(View.VISIBLE);
             validTouchLayout.setVisibility(View.GONE);
             aboutLayout.setVisibility(View.GONE);
@@ -181,6 +192,10 @@ public class SelectionActivity extends AppCompatActivity implements View.OnTouch
             toolbar = (Toolbar) helpLayout.findViewById(R.id.include);
             titleTV = (TextView) helpLayout.findViewById(R.id.title);
 
+            scrollView = (ScrollView) helpLayout.findViewById(R.id.scrollView);
+            ImageView touchPic = (ImageView) helpLayout.findViewById(R.id.valid_touch_help_pic);
+
+            Utils.getImageLoaderWithConfig().displayImage("drawable://" + R.drawable.help_valid_touch_picture, touchPic, Utils.getDisplayImageOptions());
         }
 
         titleTV.setTypeface(Utils.getRoboto());
@@ -359,6 +374,26 @@ public class SelectionActivity extends AppCompatActivity implements View.OnTouch
                     }
                 });
                 cardView.startAnimation(pushUpAnim);
+            }
+            else if(scrollView != null){
+                final Animation pushUpAnim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.push_up_in);
+                pushUpAnim.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        scrollView.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+                scrollView.startAnimation(pushUpAnim);
             }
 
         }
@@ -593,8 +628,8 @@ public class SelectionActivity extends AppCompatActivity implements View.OnTouch
             // scale * x = VALID_TOUCH_BOUNDS
             float validTouchBounds = newScale * 220;
 
-            if (validTouchBounds < CustomLockBaseListener.getMinimumLockBounds() ||
-                    validTouchBounds > CustomLockBaseListener.getMaximumLockBounds()) {
+            if (validTouchBounds < AbstractLockdBaseListener.getMinimumLockBounds() ||
+                    validTouchBounds > AbstractLockdBaseListener.getMaximumLockBounds()) {
                 return true;
             }
 
@@ -617,7 +652,7 @@ public class SelectionActivity extends AppCompatActivity implements View.OnTouch
             radiusTV.setText(convertBoundsToString(validTouchBounds)); //round to 1 decimal places.
 
             //Save data
-            CustomLockBaseListener.setValidLockBounds(validTouchBounds);
+            AbstractLockdBaseListener.setValidLockBounds(validTouchBounds);
 
             String dragHandleCoords = Float.toString(centerX + scaleView.getWidth() / 2f * newScale) + " "
                     + Float.toString(centerY + scaleView.getHeight() / 2f * newScale);
@@ -625,6 +660,7 @@ public class SelectionActivity extends AppCompatActivity implements View.OnTouch
             Utils.saveToSharedPrefsString(getString(R.string.drag_handle_coords), dragHandleCoords);
 
         }
+
         return true;
     }
 

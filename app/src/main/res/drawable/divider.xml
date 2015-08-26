@@ -5,7 +5,4 @@
         android:color="@color/image_header_bg"
         />
     <size android:height="1dp"/>
-
-
-
 </shape>

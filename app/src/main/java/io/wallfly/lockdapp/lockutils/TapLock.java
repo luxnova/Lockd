@@ -4,6 +4,8 @@ package io.wallfly.lockdapp.lockutils;
  * Created by JoshuaWilliams on 5/9/15.
  *
  * Creation of a Tap Lock
+ *
+ * @version 1.0
  */
 public class TapLock extends Lock {
 

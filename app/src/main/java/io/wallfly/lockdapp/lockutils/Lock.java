@@ -1,42 +1,30 @@
 package io.wallfly.lockdapp.lockutils;
 
-import android.content.Context;
-import android.os.Handler;
 import android.util.Log;
-import android.view.View;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-
-import com.hmkcode.android.recyclerview.R;
 
 
 /**
  * Created by JoshuaWilliams on 5/9/15.
- *
+ * <p/>
  * Base Lock class for the different types of locks.
- *
+ * <p/>
  * STRATEGY DESIGN PATTERN
  */
+
 public class Lock {
     private static final String LOG_TAG = "Lock";
+
+    public static final String DRAG = "D";
+    public static final String HOLD = "H";
+    public static final String TAP = "T";
 
     String type;
     float[] point;
     boolean isTimed = true;
     int sequenceNumber;
-    Lock currentLock;
     Lock nextLock;
     int holdSeconds = 2;
 
-    private int animationSeconds = 0;
-
-
-    RelativeLayout parent;
-    Context context;
-    TextView pointView;
-    TextView endPointView;
-
-    Handler timerHandler = new Handler();
 
     /*********************************** Lock Attribute Methods *********************************************/
 
@@ -94,8 +82,12 @@ public class Lock {
      */
     @Override
     public String toString() {
+        String holdSeconds = Integer.toString(getHoldSeconds());
+        if(this instanceof HoldLock){
+            holdSeconds = ((HoldLock)this).getLowerBuffer() + " " + ((HoldLock)this).getUpperBuffer();
+        }
         return getSequenceNumber() + " " + getType() + " " + Double.toString(getxCoord()) + " "
-        + Double.toString(getYCoord()) + " " + Integer.toString(getHoldSeconds());
+        + Double.toString(getYCoord()) + " " + holdSeconds;
     }
 
     /**
@@ -152,111 +144,16 @@ public class Lock {
         return false;
     }
 
-    /**
-     * Displays the lock sequence starting from the lock that the method was called on. That is, if the
-     * method gets called on by the 3rd lock in the sequence, then the lock sequence will display from the 3rd
-     * until the end of the combination. The sequence will be displayed on the parent layout.
-     *
-     * @param context - the context of the class calling the method on the lock.
-     * @param parent  - the layout the lock sequence will be displayed on.
-     */
-    public void showLockSequence(Context context, RelativeLayout parent){
-        setContext(context);
-        setParent(parent);
-        displayPoints(this);
-    }
 
     /**
-     * Shows the next lock in the sequence on the parent layout.
+     * Hash code method to correctly identify the current lock.
      *
-     * @param lock - The next lock to be displayed in the sequence.
+     * @return - the hashcode.
      */
-    private void showLockNextLock(Lock lock){
-        displayPoints(lock);
+    @Override
+    public int hashCode(){
+        return (getType().hashCode() * getSequenceNumber());
     }
-
-    /**
-     * Displays the points of the lock along with the type.
-     *
-     * @param lock - The lock to whose points will be displayed.
-     */
-    private void displayPoints(Lock lock) {
-        setCurrentLock(lock);
-
-        TextView pointView = Utils.getPointView(lock.getType(), lock.getxCoord(), lock.getYCoord());
-        pointView.setVisibility(View.VISIBLE);
-        Utils.setViewBackground(R.drawable.touch_point_circle, pointView);
-
-        //TODO: Differentiate beginning of drag point from end of drag point.
-
-        if(lock instanceof DragLock){
-            TextView endPointView = Utils.getPointView(lock.getType(),
-                    ((DragLock)lock).getEndXCoord() ,((DragLock)lock).getEndYCoord());
-            Utils.setViewBackground(R.drawable.touch_point_circle, endPointView);
-
-            endPointView.setVisibility(View.VISIBLE);
-            getParent().addView(endPointView);
-            setEndPointView(endPointView);
-        }
-
-        getParent().addView(pointView);
-        setPointView(pointView);
-        startAnimation();
-    }
-
-
-     Runnable timerRunnable = new Runnable() {
-
-        @Override
-        public void run() {
-            animationSeconds++;
-
-            //Gets the first digit of the float value for the hold seconds.
-            int firstDigit = Character.getNumericValue(String.valueOf(getCurrentLock().getHoldSeconds()).charAt(0));
-            Log.i(LOG_TAG, animationSeconds + " | " + firstDigit);
-
-            if(animationSeconds == firstDigit && firstDigit != 1|| firstDigit == 1 && animationSeconds == ++firstDigit){
-                animationSeconds = 0;
-                timerHandler.removeCallbacks(timerRunnable);
-                getPointView().setVisibility(View.GONE);
-
-                if(getEndPointView() != null){
-                    getEndPointView().setVisibility(View.GONE);
-                }
-
-                if(getCurrentLock().getNextLock() != null){
-                    showLockNextLock(getCurrentLock().getNextLock());
-                }
-                else{
-                    Log.i(LOG_TAG, "End of sequence");
-                    setContext(null);
-                    setParent(null);
-                }
-                return;
-            }
-            timerHandler.postDelayed(this, 1000);
-        }
-    };
-
-    private void startAnimation() {
-        timerHandler.postDelayed(timerRunnable, 0);
-    }
-
-    private void setParent(RelativeLayout parent){this.parent = parent;}
-    private RelativeLayout getParent(){return parent;}
-
-    private void setContext(Context context){this.context = context;}
-    private Context getContext(){return context;}
-
-    private void setPointView(TextView pointView){this.pointView = pointView;}
-    private void setEndPointView(TextView endPointView){this.endPointView = endPointView;}
-
-    private TextView getPointView(){return pointView;}
-    private TextView getEndPointView(){return endPointView;}
-
-    private void setCurrentLock(Lock currentLock) {this.currentLock = currentLock;}
-
-    private Lock getCurrentLock() {return currentLock;}
 
     /**
      * Tests to see if the lock is equal to another lock by testing it's attributes.
@@ -269,27 +166,28 @@ public class Lock {
      */
     @Override
     public boolean equals(Object object){
-        if((object instanceof Lock)){
+        if(object != null && (object instanceof Lock)){
             Lock lock = ((Lock)object);
 
             if(this instanceof DragLock && lock instanceof DragLock){
                 double startPointDist = Utils.getDistance(((DragLock) lock).getStartPoint(), ((DragLock) this).getStartPoint());
                 double endPointDist = Utils.getDistance(((DragLock) lock).getEndPoint(), ((DragLock) this).getEndPoint());
 
-                return startPointDist <= (CustomLockBaseListener.getValidLockBounds() + 100) //Added lock validity padding for drag since drag can be kind of tricky
-                        && endPointDist <= (CustomLockBaseListener.getValidLockBounds() + 100); //Added lock validity padding for drag since drag can be kind of tricky
+                return startPointDist <= (AbstractLockdBaseListener.getValidLockBounds() + 100) //Added lock validity padding for drag since drag can be kind of tricky
+                        && endPointDist <= (AbstractLockdBaseListener.getValidLockBounds() + 100); //Added lock validity padding for drag since drag can be kind of tricky
             }
             else if(this instanceof TapLock && lock instanceof TapLock){
-                Log.i(LOG_TAG, "Get Distance ---- " + Utils.getDistance(lock.getPoint(), getPoint()) + " " + CustomLockBaseListener.getValidLockBounds());
-                return Utils.getDistance(lock.getPoint(), getPoint()) <= CustomLockBaseListener.getValidLockBounds();
+                Log.i(LOG_TAG, "Get Distance ---- " + Utils.getDistance(lock.getPoint(), getPoint()) + " " + AbstractLockdBaseListener.getValidLockBounds());
+                return Utils.getDistance(lock.getPoint(), getPoint()) <= AbstractLockdBaseListener.getValidLockBounds();
             }
             else if(this instanceof HoldLock && lock instanceof HoldLock){
                 //If the user's hold is generally between the buffers.
                 return getHoldSeconds() >=((HoldLock)lock).getLowerBuffer()
                         && getHoldSeconds() <= ((HoldLock)lock).getUpperBuffer()
-                        && Utils.getDistance(lock.getPoint(), getPoint()) <= CustomLockBaseListener.getValidLockBounds();
+                        && Utils.getDistance(lock.getPoint(), getPoint()) <= AbstractLockdBaseListener.getValidLockBounds();
             }
         }
         return false;
     }
+
 }
